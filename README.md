@@ -1,5 +1,7 @@
-# Hexagonal-REST-dotnet - Como rodar
+# SIM! Sistema de Infraestrutura para Medicamentos
+Projeto para a secretaria de inovação, visando facilitar a distribuição de medicamentos publicos.
 
+## Como rodar:
 pra adicionar o seu banco é só usar o dotnet secrets, primeiro inicializamos ele com:
 
 ```bash
