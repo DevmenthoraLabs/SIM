@@ -40,28 +40,48 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA public
 |-------|------------------|
 | **Project URL** | Settings → Data API → Project URL |
 | **Anon/Publishable Key** | Connect → API Keys → Publishable Key |
-| **Connection String** | Settings → Database → Connection Pooler → Session mode → .NET |
+| **Session Pooler (app)** | Settings → Database → Connection Pooler → Session mode → .NET |
+| **Direct Connection (migrations)** | Settings → Database → Connection string → .NET |
 
-A connection string do pooler tem o formato:
+A connection string do **pooler** (para o app em runtime):
 ```
-User Id=postgres.[ref];Password=...;Server=aws-0-REGIAO.pooler.supabase.com;Port=5432;Database=postgres
+User Id=sim_api.[ref];Password=SENHA_SIM_API;Server=aws-0-REGIAO.pooler.supabase.com;Port=5432;Database=postgres
 ```
 
-Para o `sim_api`, substitua `postgres.[ref]` por `sim_api.[ref]`.
+A connection string **direta** (para migrations — usa `postgres`, não `sim_api`):
+```
+User Id=postgres.[ref];Password=SENHA_POSTGRES;Server=aws-0-REGIAO.supabase.com;Port=5432;Database=postgres
+```
+
+> A senha do `postgres` está em: **Settings → Database → Database password**.
+
+---
+
+## Por Que Só Uma Connection String no App
+
+O app usa exclusivamente o **Session Mode Pooler** em runtime. A Direct Connection do Supabase (que bypassa o PgBouncer) só suporta IPv6 em projetos recentes — o que a torna inacessível na maioria das redes locais. Migrations são aplicadas via SQL Script diretamente no SQL Editor do Supabase, sem necessidade de conexão direta pela máquina do dev.
 
 ---
 
 ## Migrations
 
-### Por que não `dotnet ef database update`?
-
-O EF Core executa migrations dentro de transações DDL. O PgBouncer (pooler do Supabase) não suporta esse padrão e descarta a conexão antes da transação completar. A solução é gerar um script SQL puro e executá-lo diretamente no SQL Editor do Supabase.
-
-### Aplicar migrations (primeira vez ou nova migration no repositório)
-
-**Passo 1 — Gerar o script SQL**
+### Criar uma nova migration (ao modificar entidades)
 
 Na raiz do repositório:
+
+```bash
+dotnet ef migrations add NomeDescritivo \
+  --project SIM.Infrastructure \
+  --startup-project SIM.WebApi
+```
+
+Exemplos de nomes: `AddProductCategory`, `AddUnitEntity`, `SeedSimSuporteOrganization`.
+
+### Aplicar migrations — SQL Script (único método suportado)
+
+A Direct Connection do Supabase expõe apenas IPv6 em projetos mais recentes, o que é incompatível com a maioria das redes locais. Por isso, **`dotnet ef database update` não funciona de forma confiável** contra o Supabase. O método correto é sempre via SQL Script.
+
+**Passo 1 — Gerar o script SQL**
 
 ```bash
 dotnet ef migrations script \
@@ -71,7 +91,7 @@ dotnet ef migrations script \
   --idempotent
 ```
 
-A flag `--idempotent` torna o script seguro para reexecutar.
+A flag `--idempotent` faz o script verificar `__EFMigrationsHistory` antes de cada migration — seguro para reexecutar sem criar dados duplicados ou conflitos. Se uma migration já foi aplicada, ela é pulada automaticamente.
 
 **Passo 2 — Executar no Supabase**
 
@@ -80,19 +100,11 @@ A flag `--idempotent` torna o script seguro para reexecutar.
 3. No dashboard: **SQL Editor → New query**
 4. Cole e clique em **Run**
 
-> `migration.sql` está no `.gitignore` — não commitar. Ver abaixo.
+> `migration.sql` está no `.gitignore` — não commitar. É um artefato derivado, gerado on-demand.
 
-### Criar uma nova migration (ao modificar entidades)
+---
 
-```bash
-dotnet ef migrations add NomeDescritivo \
-  --project SIM.Infrastructure \
-  --startup-project SIM.WebApi
-```
-
-Depois repita os Passos 1 e 2 acima para aplicar no banco.
-
-### O que commitar
+## O que commitar
 
 | Arquivo | Git |
 |---------|-----|
@@ -103,7 +115,8 @@ Depois repita os Passos 1 e 2 acima para aplicar no banco.
 
 ## Notas sobre PgBouncer
 
-O Supabase usa PgBouncer em **Session Mode** como pooler. Dois comportamentos importantes:
+O Supabase usa PgBouncer em **Session Mode** como pooler para o app em runtime. Dois comportamentos importantes:
 
-- **`No Reset On Close=true`** — obrigatório na connection string. O Npgsql tenta resetar a conexão ao devolvê-la ao pool; o PgBouncer descarta o objeto antes disso. Esse parâmetro desativa o reset.
-- **DDL em transações** — não suportado pelo PgBouncer, por isso migrations são feitas via SQL script.
+- **`No Reset On Close=true`** — obrigatório na connection string do pooler. O Npgsql tenta resetar a conexão ao devolvê-la ao pool; o PgBouncer descarta o objeto antes disso. Esse parâmetro desativa o reset.
+- **`No Reset On Close=true` na Direct Connection** — também recomendado por consistência, embora a conexão direta não passe pelo PgBouncer.
+- **DDL em transações** — não suportado pelo PgBouncer. Por isso migrations nunca devem ser aplicadas via pooler.

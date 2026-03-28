@@ -1,25 +1,57 @@
 # API Reference
 
-Todos os endpoints requerem `Authorization: Bearer {jwt_token}`.
-
-O JWT é obtido autenticando via Supabase Auth. Ver [authentication.md](authentication.md).
+Todos os endpoints (exceto `/api/auth/login`) requerem `Authorization: Bearer {jwt_token}`.
 
 ---
 
-## Organizations
+## Auth
 
-| Método | Rota | Role |
+| Método | Rota | Auth |
 |--------|------|------|
-| `POST` | `/api/organizations` | Admin |
-| `GET` | `/api/organizations` | Admin |
-| `GET` | `/api/organizations/{id}` | Admin, StockManager |
+| `POST` | `/api/auth/login` | Público |
 
-### POST /api/organizations
+### POST /api/auth/login
+
+Autentica um usuário e retorna o bearer token para uso nos demais endpoints.
 
 ```json
 {
-  "name": "Rede SIM Norte",
-  "cnpj": "00000000000191",
+  "email": "usuario@sim.com",
+  "password": "senha"
+}
+```
+
+**Resposta — 200 OK**
+```json
+{
+  "accessToken": "eyJ...",
+  "tokenType": "bearer",
+  "expiresIn": 3600
+}
+```
+
+Use o `accessToken` no header `Authorization: Bearer {accessToken}` em todas as chamadas subsequentes.
+
+---
+
+## SIM Suporte *(SuperAdmin only)*
+
+Endpoints exclusivos para a equipe interna SIM. Usados para onboarding de novos clientes e administração cross-organizacional. Ver [suporte.md](suporte.md) para o workflow completo.
+
+### Organizations (Suporte)
+
+| Método | Rota | Role |
+|--------|------|------|
+| `POST` | `/api/suporte/organizations` | SuperAdmin |
+| `GET`  | `/api/suporte/organizations` | SuperAdmin |
+| `GET`  | `/api/suporte/organizations/{id}` | SuperAdmin |
+
+### POST /api/suporte/organizations
+
+```json
+{
+  "name": "FarmaVida",
+  "cnpj": "12345678000195",
   "type": "Private"
 }
 ```
@@ -30,13 +62,61 @@ O JWT é obtido autenticando via Supabase Auth. Ver [authentication.md](authenti
 ```json
 {
   "id": "uuid",
-  "name": "Rede SIM Norte",
-  "cnpj": "00000000000191",
+  "name": "FarmaVida",
+  "cnpj": "12345678000195",
   "type": "Private",
   "createdAt": "2026-01-15T10:00:00Z",
   "isActive": true
 }
 ```
+
+### Users (Suporte)
+
+| Método | Rota | Role |
+|--------|------|------|
+| `POST` | `/api/suporte/users` | SuperAdmin |
+| `GET`  | `/api/suporte/users/{id}` | SuperAdmin |
+
+### POST /api/suporte/users
+
+Provisiona qualquer `UserProfile`. Usado para criar o primeiro `Admin` de uma nova org, ou novos `SuperAdmin` para a equipe SIM.
+
+```json
+{
+  "supabaseUserId": "a1b2c3d4-5e6f-7890-abcd-ef1234567890",
+  "fullName": "João Silva",
+  "email": "joao@farmavida.com",
+  "role": "Admin",
+  "organizationId": "uuid-da-organizacao",
+  "unitId": null
+}
+```
+
+**Roles válidas:** `SuperAdmin`, `Admin`, `Pharmacist`, `StockManager`, `ReceivingOperator`
+
+> Para criar um `SuperAdmin`, use `"role": "SuperAdmin"` e `"organizationId": "00000000-0000-0000-0000-000000000001"` (UUID fixo da SimSuporte). Ver [superadmin-onboarding.md](superadmin-onboarding.md).
+
+**Resposta — 201 Created**
+```json
+{
+  "id": "a1b2c3d4-5e6f-7890-abcd-ef1234567890",
+  "fullName": "João Silva",
+  "email": "joao@farmavida.com",
+  "role": "Admin",
+  "organizationId": "uuid-da-organizacao",
+  "unitId": null,
+  "createdAt": "2026-01-15T10:00:00Z",
+  "isActive": true
+}
+```
+
+---
+
+## Organizations
+
+| Método | Rota | Role |
+|--------|------|------|
+| `GET` | `/api/organizations/{id}` | Admin, StockManager |
 
 ---
 
@@ -45,31 +125,33 @@ O JWT é obtido autenticando via Supabase Auth. Ver [authentication.md](authenti
 | Método | Rota | Role |
 |--------|------|------|
 | `POST` | `/api/users` | Admin |
-| `GET` | `/api/users/{id}` | Admin |
+| `GET`  | `/api/users/{id}` | Admin |
 
 ### POST /api/users
 
 Provisiona um `UserProfile` para um usuário já criado no Supabase Auth.
+O `organizationId` deve ser o da organização do Admin autenticado — qualquer outro valor é rejeitado.
+O `role` não pode ser `SuperAdmin` — use `/api/suporte/users` para isso.
 
 ```json
 {
   "supabaseUserId": "a1b2c3d4-5e6f-7890-abcd-ef1234567890",
-  "fullName": "User",
-  "email": "user@sim.com",
+  "fullName": "Maria Farmacêutica",
+  "email": "maria@farmavida.com",
   "role": "Pharmacist",
   "organizationId": "uuid-da-organizacao",
   "unitId": null
 }
 ```
 
-**Roles válidas:** `Admin`, `Pharmacist`, `StockManager`, `ReceivingOperator`
+**Roles válidas aqui:** `Admin`, `Pharmacist`, `StockManager`, `ReceivingOperator`
 
 **Resposta — 201 Created**
 ```json
 {
   "id": "a1b2c3d4-5e6f-7890-abcd-ef1234567890",
-  "fullName": "User",
-  "email": "user@sim.com",
+  "fullName": "Maria Farmacêutica",
+  "email": "maria@farmavida.com",
   "role": "Pharmacist",
   "organizationId": "uuid-da-organizacao",
   "unitId": null,

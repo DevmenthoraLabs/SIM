@@ -20,7 +20,7 @@ public class CreateUserViewModelValidator : AbstractValidator<CreateUserViewMode
             .EmailAddress().WithMessage(ValidationMessages.EmailInvalid);
 
         RuleFor(x => x.Role)
-            .IsInEnum().WithMessage("Role must be a valid UserRole.");
+            .IsInEnum().WithMessage(ValidationMessages.UserRoleInvalid);
 
         RuleFor(x => x.OrganizationId)
             .NotEmpty().WithMessage(ValidationMessages.OrganizationRequired);

@@ -9,7 +9,10 @@ SIM usa `dotnet user-secrets` para todas as credenciais. **Nunca coloque segredo
 | Chave | Descrição |
 |-------|-----------|
 | `Supabase:Url` | URL do projeto Supabase (ex: `https://ref.supabase.co`) |
-| `ConnectionStrings:DefaultConnection` | Connection string com `No Reset On Close=true` |
+| `Supabase:AnonKey` | Publishable/Anon Key — usada pelo endpoint `POST /api/auth/login` |
+| `ConnectionStrings:DefaultConnection` | Session Mode Pooler — usado pelo app em runtime |
+
+> `DefaultConnection` usa o **pooler** (`sim_api`, host com `pooler.supabase.com`). Não usar para migrations. Ver [database.md](database.md) para a connection string direta usada em `dotnet ef database update`.
 
 ### Configurar os secrets
 
@@ -17,6 +20,8 @@ SIM usa `dotnet user-secrets` para todas as credenciais. **Nunca coloque segredo
 cd SIM.WebApi
 
 dotnet user-secrets set "Supabase:Url" "https://SEU_REF.supabase.co"
+
+dotnet user-secrets set "Supabase:AnonKey" "SUA_ANON_KEY"
 
 dotnet user-secrets set "ConnectionStrings:DefaultConnection" \
   "User Id=sim_api.SEU_REF;Password=SENHA_SIM_API;Server=aws-0-REGIAO.pooler.supabase.com;Port=5432;Database=postgres;No Reset On Close=true"

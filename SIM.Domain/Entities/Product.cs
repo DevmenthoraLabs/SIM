@@ -19,7 +19,7 @@ public class Product : BaseEntity
         return new Product
         {
             Name = name.Trim(),
-            Description = description.Trim()
+            Description = description?.Trim() ?? string.Empty
         };
     }
 }

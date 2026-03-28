@@ -1,8 +1,10 @@
 using FluentValidation;
+using SIM.Application.Abstractions;
 using SIM.Application.Abstractions.Services;
 using SIM.Application.Exceptions;
 using SIM.Application.ViewModels.Organizations;
 using SIM.Domain.Abstractions;
+using SIM.Domain.Constants;
 using SIM.Domain.Entities;
 
 namespace SIM.Application.Services;
@@ -10,6 +12,7 @@ namespace SIM.Application.Services;
 public class OrganizationAppService(
     IValidator<CreateOrganizationViewModel> createValidator,
     IRepository<Organization> repository,
+    ICurrentUserService currentUserService,
     IUnitOfWork unitOfWork) : IOrganizationAppService
 {
     public async Task<OrganizationViewModel> CreateAsync(
@@ -33,7 +36,14 @@ public class OrganizationAppService(
         CancellationToken cancellationToken = default)
     {
         var organization = await repository.GetByIdAsync(id, cancellationToken);
-        return organization is null ? null : MapToViewModel(organization);
+
+        if (organization is null)
+            return null;
+
+        if (!currentUserService.IsSuperAdmin && organization.Id != currentUserService.OrganizationId)
+            throw new BusinessLogicException(ValidationMessages.OrganizationAccessDenied);
+
+        return MapToViewModel(organization);
     }
 
     public async Task<IReadOnlyList<OrganizationViewModel>> GetAllAsync(

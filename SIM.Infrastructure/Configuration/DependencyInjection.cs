@@ -3,7 +3,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using SIM.Application.Abstractions.Services;
 using SIM.Domain.Abstractions;
+using SIM.Infrastructure.Auth;
 using SIM.Infrastructure.Data;
 using SIM.Infrastructure.Repositories;
 
@@ -20,6 +22,32 @@ public static class DependencyInjection
 
         services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
         services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+        return services;
+    }
+
+    /// <summary>
+    /// Registers the auth provider implementation (currently Supabase).
+    /// To swap providers: replace SupabaseAuthService with a new implementation
+    /// and update the HttpClient configuration below — no other layer changes.
+    /// </summary>
+    public static IServiceCollection AddAuthProvider(
+        this IServiceCollection services,
+        IConfiguration configuration)
+    {
+        var supabaseUrl = configuration["Supabase:Url"]
+            ?? throw new InvalidOperationException("Supabase:Url is not configured.");
+
+        var anonKey = configuration["Supabase:AnonKey"]
+            ?? throw new InvalidOperationException("Supabase:AnonKey is not configured.");
+
+        services.AddHttpClient("SupabaseAuth", client =>
+        {
+            client.BaseAddress = new Uri($"{supabaseUrl}/auth/v1/");
+            client.DefaultRequestHeaders.Add("apikey", anonKey);
+        });
+
+        services.AddScoped<IAuthService, SupabaseAuthService>();
 
         return services;
     }

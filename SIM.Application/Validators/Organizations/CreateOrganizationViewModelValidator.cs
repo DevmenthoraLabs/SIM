@@ -17,6 +17,6 @@ public class CreateOrganizationViewModelValidator : AbstractValidator<CreateOrga
             .Matches(@"^\d{14}$").WithMessage(ValidationMessages.CnpjInvalid);
 
         RuleFor(x => x.Type)
-            .IsInEnum().WithMessage("Type must be a valid OrganizationType.");
+            .IsInEnum().WithMessage(ValidationMessages.OrganizationTypeInvalid);
     }
 }

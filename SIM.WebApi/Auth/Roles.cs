@@ -6,14 +6,19 @@ namespace SIM.WebApi.Auth;
 /// </summary>
 public static class Roles
 {
-    public const string Admin            = "Admin";
-    public const string Pharmacist       = "Pharmacist";
-    public const string StockManager     = "StockManager";
+    /// <summary>SIM internal support team. Cross-organization access. No org scope.</summary>
+    public const string SuperAdmin        = "SuperAdmin";
+
+    /// <summary>Organization-level administrator. Manages users within their own org.</summary>
+    public const string Admin             = "Admin";
+
+    public const string Pharmacist        = "Pharmacist";
+    public const string StockManager      = "StockManager";
     public const string ReceivingOperator = "ReceivingOperator";
 
     public const string AdminOrStockManager =
         Admin + "," + StockManager;
 
     public const string AllRoles =
-        Admin + "," + Pharmacist + "," + StockManager + "," + ReceivingOperator;
+        SuperAdmin + "," + Admin + "," + Pharmacist + "," + StockManager + "," + ReceivingOperator;
 }

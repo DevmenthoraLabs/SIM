@@ -19,8 +19,11 @@ public class SupabaseClaimsTransformation(IRepository<UserProfile> userProfileRe
         if (!Guid.TryParse(sub, out var userId))
             return principal;
 
-        // If the role claim was already added (e.g. called twice in a request), skip
-        if (principal.HasClaim(c => c.Type == ClaimTypes.Role))
+        // If transformation already ran, skip.
+        // We check SimClaimTypes.OrganizationId (not ClaimTypes.Role) because
+        // Supabase JWTs already contain role="authenticated" which maps to ClaimTypes.Role,
+        // causing the role check to return true before we inject our application role.
+        if (principal.HasClaim(c => c.Type == SimClaimTypes.OrganizationId))
             return principal;
 
         var profile = await userProfileRepository.GetByIdAsync(userId);
@@ -29,6 +32,7 @@ public class SupabaseClaimsTransformation(IRepository<UserProfile> userProfileRe
 
         var identity = (ClaimsIdentity)principal.Identity!;
         identity.AddClaim(new Claim(ClaimTypes.Role, profile.Role.ToString()));
+        identity.AddClaim(new Claim(SimClaimTypes.OrganizationId, profile.OrganizationId.ToString()));
 
         return principal;
     }

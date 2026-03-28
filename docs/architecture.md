@@ -26,6 +26,38 @@ SIM.Infrastructure
 
 ## Decisões de Design
 
+### Estratégia Multi-Tenant: Single Database
+
+O SIM usa **single database, multi-tenant**. Todas as organizations (clientes) coexistem no mesmo banco PostgreSQL, separadas pela coluna `OrganizationId` em cada tabela de negócio. Não existe instância ou schema separado por cliente.
+
+Essa é a abordagem padrão de SaaS (adotada por Notion, Linear, GitHub etc.) e foi a escolhida para o MVP porque:
+- Custo operacional zero por novo cliente
+- Migrations e deployments unificados
+- Supabase tem um único projeto por ambiente (dev/staging/prod)
+
+A isolação é garantida por lógica de aplicação: `UserAppService` verifica que `Admin` só opera dentro da sua organização. `SuperAdmin` (equipe interna SIM) é a única role sem escopo de organização.
+
+Para escalar para schema-per-tenant ou database-per-tenant no futuro, o ponto de mudança é o `ApplicationDbContext` e o connection string — as camadas superiores não mudam.
+
+### Por que existe o role `SuperAdmin`?
+
+O SIM tem dois níveis de administração:
+
+- **`SuperAdmin`** (equipe SIM): cria organizations e o primeiro Admin de cada cliente. Pertence à organização interna **SIM Suporte** (`SystemOrganizations.SimSuporte`). Acessa `/api/suporte/*`.
+- **`Admin`** (gestor da farmácia): gerencia usuários dentro da sua própria organização. Acessa `/api/*` com restrições de escopo.
+
+Essa separação evita que um gestor de farmácia crie organizations novas ou acesse dados de outros clientes. Ver [suporte.md](suporte.md) para o workflow de onboarding.
+
+### Por que SuperAdmin pertence à organização SimSuporte?
+
+`OrganizationId` é uma FK obrigatória em `user_profiles` — todo usuário precisa de uma organização. Em vez de tornar a coluna nullable (o que introduziria verificações condicionais em toda a codebase), o SuperAdmin pertence a uma organização de sistema com UUID fixo e bem-conhecido (`00000000-0000-0000-0000-000000000001`).
+
+Vantagens desta abordagem:
+- Nenhuma lógica condicional de `OrganizationId` nas validações ou no domain
+- Constraint de FK sempre satisfeita
+- A constante `SystemOrganizations.SimSuporte` torna a intenção explícita e auditável
+- A org SimSuporte é seedada pela migration `SeedSimSuporteOrganization` — não depende de chamada de API
+
 ### Por que não há endpoint de Sign Up?
 
 O cadastro de identidade é responsabilidade do Supabase Auth. A API SIM gerencia apenas o `UserProfile` — os dados de negócio (role, organização) que o Supabase não armazena. Isso mantém os sistemas desacoplados e abre caminho para uma futura API de licensing independente.
