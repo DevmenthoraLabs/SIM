@@ -1,4 +1,4 @@
-namespace Sim.Application.Exceptions;
+namespace SIM.Application.Exceptions;
 
 public class BusinessLogicException : Exception
 {

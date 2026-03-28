@@ -1,6 +1,6 @@
-﻿using Sim.Domain.Abstractions;
+using SIM.Domain.Abstractions;
 
-namespace Sim.Infrastructure.Repositories;
+namespace SIM.Infrastructure.Repositories;
 
 public class UnitOfWork : IUnitOfWork
 {
