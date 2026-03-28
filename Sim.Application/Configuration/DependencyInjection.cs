@@ -1,7 +1,7 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
 
-namespace Sim.Application.Configuration;
+namespace SIM.Application.Configuration;
 
 public static class DependencyInjection
 {
@@ -9,7 +9,7 @@ public static class DependencyInjection
     {
         var assembly = Assembly.GetExecutingAssembly();
 
-        // Registro Automático de todos os Services - Terimnam com "Service"
+        // Registro Autom�tico de todos os Services - Terimnam com "Service"
         var serviceTypes = assembly.GetTypes()
             .Where(t => t.Name.EndsWith("Service") && !t.IsInterface && !t.IsAbstract);
 

@@ -1,4 +1,4 @@
-﻿namespace Sim.Domain.Abstractions;
+namespace SIM.Domain.Abstractions;
 
 public interface IUnitOfWork : IDisposable
 {

@@ -1,10 +1,10 @@
-﻿using Sim.Domain.Abstractions;
-using Sim.Infrastructure.Repositories;
+using SIM.Domain.Abstractions;
+using SIM.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Sim.Infrastructure.Configuration;
+namespace SIM.Infrastructure.Configuration;
 
 public static class DependencyInjection
 {

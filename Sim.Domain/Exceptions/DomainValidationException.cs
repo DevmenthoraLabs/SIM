@@ -1,4 +1,4 @@
-﻿namespace Sim.Domain.Exceptions;
+namespace SIM.Domain.Exceptions;
 
 public class DomainValidationException: Exception
 {

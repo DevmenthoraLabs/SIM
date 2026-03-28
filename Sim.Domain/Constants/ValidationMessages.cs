@@ -1,18 +1,18 @@
-Ôªønamespace Sim.Domain.Constants;
+namespace SIM.Domain.Constants;
 
 public static class ValidationMessages
 {
-    public const string UserNameRequired = "O nome do aluno √© obrigat√≥rio.";
-    public const string UserNameTooLong = "O nome deve ter no m√°ximo 50 caracteres.";
-    public const string InvalidEmailDomain = "O e-mail deve pertencer ao dom√≠nio @faculdade.edu.";
-    public const string DuplicateEmail = "J√° existe um aluno matriculado com este e-mail.";
-    public const string UserNotFound = "Aluno n√£o encontrado.";
-    public const string CourseNotFound = "Curso n√£o encontrado.";
-    public const string CourseTitleRequired = "O t√≠tulo do curso √© obrigat√≥rio.";
-    public const string InvalidWorkload = "A carga hor√°ria √© inv√°lida.";
-    public const string EnrollmentLimitExceeded = "Limite de carga hor√°ria excedido.";
-    public const string EnrollmentDuplicate = "Aluno j√° est√° matriculado neste curso.";
-    public const string EnrollmentNotFound = "Matr√≠cula n√£o encontrada.";
-    public const string InvalidUserId = "ID do aluno inv√°lido.";
-    public const string InvalidCourseId = "ID do curso inv√°lido.";
+    public const string UserNameRequired = "O nome do aluno È obrigatÛrio.";
+    public const string UserNameTooLong = "O nome deve ter no m·ximo 50 caracteres.";
+    public const string InvalidEmailDomain = "O e-mail deve pertencer ao domÌnio @faculdade.edu.";
+    public const string DuplicateEmail = "J· existe um aluno matriculado com este e-mail.";
+    public const string UserNotFound = "Aluno n„o encontrado.";
+    public const string CourseNotFound = "Curso n„o encontrado.";
+    public const string CourseTitleRequired = "O tÌtulo do curso È obrigatÛrio.";
+    public const string InvalidWorkload = "A carga hor·ria È inv·lida.";
+    public const string EnrollmentLimitExceeded = "Limite de carga hor·ria excedido.";
+    public const string EnrollmentDuplicate = "Aluno j· est· matriculado neste curso.";
+    public const string EnrollmentNotFound = "MatrÌcula n„o encontrada.";
+    public const string InvalidUserId = "ID do aluno inv·lido.";
+    public const string InvalidCourseId = "ID do curso inv·lido.";
 }

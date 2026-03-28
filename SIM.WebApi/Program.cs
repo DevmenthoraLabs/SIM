@@ -1,6 +1,6 @@
-using Sim.Application.Configuration;
+using SIM.Application.Configuration;
 // unico motivo q infra ta na referencia de projeto
-using Sim.Infrastructure.Configuration;
+using SIM.Infrastructure.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
