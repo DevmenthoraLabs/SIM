@@ -70,6 +70,7 @@ frontend/node_modules/
 frontend/dist/
 frontend/.env
 frontend/.env.*
+!frontend/.env.example
 
 ## --- Flutter / Mobile (futuro) ---
 .flutter-plugins
