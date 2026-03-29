@@ -1,6 +1,0 @@
-<Solution>
-  <Project Path="Sim.Application/Sim.Application.csproj" DisplayName="SIM.Application" />
-  <Project Path="Sim.Domain/Sim.Domain.csproj" DisplayName="SIM.Domain" />
-  <Project Path="Sim.Infrastructure/Sim.Infrastructure.csproj" DisplayName="SIM.Infrastructure" />
-  <Project Path="SIM.WebApi/SIM.WebApi.csproj" />
-</Solution>

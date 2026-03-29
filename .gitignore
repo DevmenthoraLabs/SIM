@@ -65,8 +65,13 @@ coverage/
 *.lcov
 .ionide/
 
-## --- Frontend (Se houver Blazor ou Mobile/Flutter acoplado) ---
-node_modules/
+## --- Frontend (React / Vite) ---
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+frontend/.env.*
+
+## --- Flutter / Mobile (futuro) ---
 .flutter-plugins
 .flutter-plugins-dependencies
 .dart_tool/
