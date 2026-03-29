@@ -5,6 +5,8 @@ public static class ValidationMessages
     // Auth
     public const string PasswordRequired = "Password is required.";
     public const string InvalidCredentials = "Invalid email or password.";
+    public const string RefreshTokenRequired = "Refresh token is required.";
+    public const string InvalidRefreshToken = "Invalid or expired refresh token.";
 
     // User Profile
     public const string UserRoleInvalid = "Role must be a valid UserRole.";

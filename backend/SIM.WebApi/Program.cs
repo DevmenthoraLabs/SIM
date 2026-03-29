@@ -5,11 +5,13 @@ using SIM.Application.Abstractions;
 using SIM.Application.Configuration;
 using SIM.Infrastructure.Configuration;
 using SIM.WebApi.Auth;
+using SIM.WebApi.Configuration;
 using SIM.WebApi.Exceptions;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddSimCors(builder.Configuration);
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddAuthProvider(builder.Configuration);
@@ -36,6 +38,7 @@ builder.Services.AddOpenApi();
 var app = builder.Build();
 
 app.UseExceptionHandler();
+app.UseSimCors();
 
 if (app.Environment.IsDevelopment())
 {

@@ -10,7 +10,7 @@ namespace SIM.WebApi.Controllers;
 public class AuthController(IAuthService authService) : ControllerBase
 {
     /// <summary>
-    /// Authenticates a user and returns a bearer token.
+    /// Authenticates a user and returns an access token and refresh token.
     /// Use the returned accessToken in the Authorization header for all other endpoints.
     /// </summary>
     [HttpPost("login")]
@@ -20,6 +20,20 @@ public class AuthController(IAuthService authService) : ControllerBase
         CancellationToken cancellationToken)
     {
         var result = await authService.LoginAsync(vm, cancellationToken);
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Issues a new access token using a valid refresh token.
+    /// Call this when the access token has expired.
+    /// </summary>
+    [HttpPost("refresh")]
+    [AllowAnonymous]
+    public async Task<IActionResult> Refresh(
+        [FromBody] RefreshViewModel vm,
+        CancellationToken cancellationToken)
+    {
+        var result = await authService.RefreshAsync(vm, cancellationToken);
         return Ok(result);
     }
 }
