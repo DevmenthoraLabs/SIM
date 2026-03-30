@@ -8,7 +8,7 @@ namespace SIM.WebApi.Controllers;
 
 /// <summary>
 /// User management endpoints for organization-level Admins.
-/// Admins can only create and view users within their own organization.
+/// Admins can only invite and view users within their own organization.
 /// Org isolation and role restrictions are enforced in UserAppService.
 /// For cross-org operations, see the SIM Suporte area (api/suporte/users).
 /// </summary>
@@ -18,16 +18,16 @@ namespace SIM.WebApi.Controllers;
 public class UsersController(IUserAppService userAppService) : ControllerBase
 {
     /// <summary>
-    /// Provisions an application profile for an existing Supabase Auth user.
+    /// Invites a new user via email. Supabase sends the invitation automatically.
     /// The OrganizationId must match the Admin's own organization.
     /// The role cannot be SuperAdmin — use api/suporte/users for that.
     /// </summary>
     [HttpPost]
-    public async Task<IActionResult> Create(
-        [FromBody] CreateUserViewModel vm,
+    public async Task<IActionResult> Invite(
+        [FromBody] InviteUserViewModel vm,
         CancellationToken cancellationToken)
     {
-        var result = await userAppService.CreateAsync(vm, cancellationToken);
+        var result = await userAppService.InviteAsync(vm, cancellationToken);
         return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
     }
 

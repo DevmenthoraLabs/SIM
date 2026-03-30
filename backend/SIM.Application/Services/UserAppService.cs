@@ -11,18 +11,19 @@ using SIM.Domain.Enums;
 namespace SIM.Application.Services;
 
 public class UserAppService(
-    IValidator<CreateUserViewModel> createValidator,
+    IValidator<InviteUserViewModel> inviteValidator,
     IValidator<UpdateUserRoleViewModel> updateRoleValidator,
+    IIdentityAdminService identityAdminService,
     IRepository<UserProfile> userProfileRepository,
     IRepository<Organization> organizationRepository,
     ICurrentUserService currentUserService,
     IUnitOfWork unitOfWork) : IUserAppService
 {
-    public async Task<UserViewModel> CreateAsync(
-        CreateUserViewModel vm,
+    public async Task<UserViewModel> InviteAsync(
+        InviteUserViewModel vm,
         CancellationToken cancellationToken = default)
     {
-        var validation = await createValidator.ValidateAsync(vm, cancellationToken);
+        var validation = await inviteValidator.ValidateAsync(vm, cancellationToken);
         if (!validation.IsValid)
             throw new BusinessLogicException(string.Join(" ", validation.Errors.Select(e => e.ErrorMessage)));
 
@@ -35,10 +36,23 @@ public class UserAppService(
                 throw new BusinessLogicException(ValidationMessages.OrganizationAccessDenied);
         }
 
+        // SuperAdmin users must always belong to the SimSuporte organization — no exceptions.
+        if (vm.Role == UserRole.SuperAdmin && vm.OrganizationId != SystemOrganizations.SimSuporte)
+            throw new BusinessLogicException(ValidationMessages.SuperAdminMustBelongToSimSuporte);
+
         _ = await organizationRepository.GetByIdAsync(vm.OrganizationId, cancellationToken)
             ?? throw new BusinessLogicException(ValidationMessages.OrganizationNotFound);
 
-        var userProfile = UserProfile.Create(vm.SupabaseUserId, vm.FullName, vm.Email, vm.Role, vm.OrganizationId, vm.UnitId);
+        var emailTaken = await userProfileRepository.AnyAsync(
+            u => u.Email == vm.Email.Trim().ToLowerInvariant(), cancellationToken);
+        if (emailTaken)
+            throw new BusinessLogicException(ValidationMessages.EmailAlreadyExists);
+
+        // Invite user in the external auth provider — creates the account and sends invitation email.
+        // The returned UUID is used immediately to create the UserProfile.
+        var userId = await identityAdminService.InviteUserAsync(vm.Email, cancellationToken);
+
+        var userProfile = UserProfile.Create(userId, vm.FullName, vm.Email, vm.Role, vm.OrganizationId, vm.UnitId);
 
         await userProfileRepository.AddAsync(userProfile, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
@@ -78,6 +92,10 @@ public class UserAppService(
             if (profile.Id == currentUserService.UserId)
                 throw new BusinessLogicException(ValidationMessages.CannotChangeOwnRole);
         }
+
+        // Enforce SuperAdmin org invariant on role changes as well.
+        if (vm.NewRole == UserRole.SuperAdmin && profile.OrganizationId != SystemOrganizations.SimSuporte)
+            throw new BusinessLogicException(ValidationMessages.SuperAdminMustBelongToSimSuporte);
 
         profile.UpdateRole(vm.NewRole);
         await unitOfWork.SaveChangesAsync(cancellationToken);

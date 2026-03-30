@@ -35,7 +35,7 @@ public class UserProfile : IOrganizationScoped
         Guid? unitId = null)
     {
         if (supabaseUserId == Guid.Empty)
-            throw new DomainValidationException(ValidationMessages.SupabaseUserIdRequired);
+            throw new DomainValidationException(ValidationMessages.UserIdRequired);
 
         if (string.IsNullOrWhiteSpace(fullName))
             throw new DomainValidationException(ValidationMessages.FullNameRequired);

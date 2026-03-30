@@ -6,7 +6,7 @@ namespace SIM.WebApi.Auth;
 /// </summary>
 public static class Roles
 {
-    /// <summary>SIM internal support team. Cross-organization access. No org scope.</summary>
+    /// <summary>SIM internal support team. Always belongs to the SimSuporte organization.</summary>
     public const string SuperAdmin        = "SuperAdmin";
 
     /// <summary>Organization-level administrator. Manages users within their own org.</summary>
