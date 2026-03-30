@@ -81,23 +81,52 @@ Authorization: Bearer {token_do_admin}
 
 ### Etapa 3 — Login normal
 
-O usuário autentica via Supabase (frontend ou Postman). O JWT retornado contém o `sub` com o UUID. A API valida o JWT, carrega o `UserProfile` pelo UUID e aplica as permissões automaticamente.
+O usuário autentica via Supabase (frontend ou Postman). O JWT retornado **já contém `sim_role` e `sim_organization_id`** injetados pelo Custom Access Token Hook. A API valida o JWT e aplica as permissões diretamente a partir das claims — sem consulta adicional ao banco.
 
 Para o workflow completo de onboarding de um novo cliente, ver [suporte.md](suporte.md).
 
 ---
 
+## Custom Access Token Hook
+
+O Supabase possui um hook nativo que executa uma função PostgreSQL **a cada geração de JWT** (login e refresh). O SIM usa esse mecanismo para embutir as claims de negócio diretamente no token assinado.
+
+A função está em `Docs/supabase-access-token-hook.sql` e deve ser registrada em **Authentication → Hooks → Custom Access Token Hook** no dashboard do Supabase.
+
+**O que o hook faz:**
+1. Recebe o evento de geração de token com `user_id`, `claims` e `authentication_method`
+2. Consulta `user_profiles` pelo `user_id`
+3. Injeta `sim_role` e `sim_organization_id` como claims top-level no JWT
+4. Retorna `{ "claims": { ... } }` com as claims enriquecidas
+
+**JWT resultante após o hook:**
+```json
+{
+  "sub":                 "user-uuid",
+  "role":                "authenticated",
+  "sim_role":            "Admin",
+  "sim_organization_id": "org-uuid",
+  "exp":                 1234567890
+}
+```
+
+Como o JWT é assinado com RS256 pelo Supabase, essas claims **não podem ser forjadas** por nenhum cliente.
+
+---
+
 ## Claims Transformation
 
-A cada requisição autenticada:
+A cada requisição autenticada, `SupabaseClaimsTransformation` mapeia as claims do JWT para o pipeline do ASP.NET Core:
 
-1. JWT Bearer valida a assinatura via OIDC
-2. `SupabaseClaimsTransformation` lê o `sub` do JWT (= `UserProfile.Id`)
-3. Carrega o `UserProfile` do banco e injeta duas claims adicionais:
-   - `ClaimTypes.Role` → valor do `UserProfile.Role` (ex: `"Admin"`)
-   - `sim:organization_id` → UUID da organização do usuário (vazio para `SuperAdmin`)
+1. JWT Bearer valida a assinatura RS256 via OIDC discovery
+2. `SupabaseClaimsTransformation` lê `sim_role` e `sim_organization_id` do JWT já validado
+3. Injeta no `ClaimsPrincipal`:
+   - `ClaimTypes.Role` → valor de `sim_role` (ex: `"Admin"`)
+   - `sim:organization_id` → valor de `sim_organization_id`
 4. `[Authorize(Roles = "Admin")]` passa a funcionar nativamente
-5. `ICurrentUserService.OrganizationId` e `ICurrentUserService.IsSuperAdmin` ficam disponíveis nos AppServices para controle de escopo
+5. `ICurrentUserService.OrganizationId` e `ICurrentUserService.IsSuperAdmin` ficam disponíveis nos AppServices
+
+**Nenhuma query ao banco é feita por requisição.** Role e organização estão no token.
 
 A constante `SimClaimTypes.OrganizationId` (`"sim:organization_id"`) está definida em `SIM.WebApi/Auth/SimClaimTypes.cs`.
 

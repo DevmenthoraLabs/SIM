@@ -31,6 +31,31 @@ public sealed class Product : BaseEntity
 }
 ```
 
+### Entidades Multi-Tenant
+
+Toda entidade de negócio que pertence a uma organização **deve** implementar `IOrganizationScoped`:
+
+```csharp
+public class StockItem : BaseEntity, IOrganizationScoped
+{
+    public Guid OrganizationId { get; private set; }
+
+    public static StockItem Create(..., Guid organizationId)
+    {
+        // organizationId vem do ICurrentUserService, nunca do caller externo
+    }
+}
+```
+
+Ao implementar a interface:
+- O Global Query Filter é registrado automaticamente — leituras já ficam isoladas por org
+- O `SaveChangesAsync` guard bloqueia writes com `OrganizationId` incorreto
+- O AppService deve receber `organizationId` via `ICurrentUserService.OrganizationId`, não via ViewModel
+
+Não implementar `IOrganizationScoped` em uma entidade multi-tenant é um erro de segurança. Ver [architecture.md](architecture.md) para detalhes do mecanismo.
+
+---
+
 ### Exceções de Domínio
 
 - `DomainValidationException` — violações de regras de negócio (422)
@@ -128,3 +153,5 @@ public async Task<IActionResult> Create(CreateOrganizationViewModel viewModel)
 | Strings hardcoded para mensagens de validação | `ValidationMessages` |
 | `try-catch` nos controllers | `GlobalExceptionHandler` |
 | DTO, Request, Response como sufixo | ViewModel |
+| `OrganizationId` recebido via ViewModel em operações de escrita | `ICurrentUserService.OrganizationId` |
+| Entidade multi-tenant sem `IOrganizationScoped` | Implementar a interface — filtro e guard automáticos |
