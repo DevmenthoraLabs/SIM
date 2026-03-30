@@ -13,7 +13,7 @@ namespace SIM.WebApi.Controllers.Suporte;
 /// </summary>
 [ApiController]
 [Route("api/suporte/organizations")]
-[Authorize(Roles = Roles.SuperAdmin)]
+[Authorize(Policy = Policies.SimSuporte)]
 [Tags("SIM Suporte")]
 public class SuporteOrganizationsController(IOrganizationAppService organizationAppService) : ControllerBase
 {

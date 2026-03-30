@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using SIM.Domain.Abstractions;
 using SIM.Infrastructure.Data;
@@ -16,4 +17,7 @@ public class Repository<T>(ApplicationDbContext context) : IRepository<T> where 
 
     public async Task AddAsync(T entity, CancellationToken cancellationToken = default) =>
         await _dbSet.AddAsync(entity, cancellationToken);
+
+    public async Task<bool> AnyAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default) =>
+        await _dbSet.AnyAsync(predicate, cancellationToken);
 }

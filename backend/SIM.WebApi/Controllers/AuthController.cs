@@ -36,4 +36,19 @@ public class AuthController(IAuthService authService) : ControllerBase
         var result = await authService.RefreshAsync(vm, cancellationToken);
         return Ok(result);
     }
+
+    /// <summary>
+    /// Verifies a one-time token from an invite or password recovery email,
+    /// sets the user's new password, and returns a session.
+    /// The frontend should use the returned tokens to log the user in immediately.
+    /// </summary>
+    [HttpPost("set-password")]
+    [AllowAnonymous]
+    public async Task<IActionResult> SetPassword(
+        [FromBody] SetPasswordViewModel vm,
+        CancellationToken cancellationToken)
+    {
+        var result = await authService.SetPasswordAsync(vm, cancellationToken);
+        return Ok(result);
+    }
 }

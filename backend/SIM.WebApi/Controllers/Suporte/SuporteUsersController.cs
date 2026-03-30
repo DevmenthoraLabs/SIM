@@ -8,26 +8,26 @@ namespace SIM.WebApi.Controllers.Suporte;
 
 /// <summary>
 /// Internal endpoints for the SIM support team (SuperAdmin only).
-/// Used to provision the first Admin user for a newly created organization,
+/// Used to invite the first Admin user for a newly created organization,
 /// or to create additional SuperAdmin accounts for the support team.
 /// </summary>
 [ApiController]
 [Route("api/suporte/users")]
-[Authorize(Roles = Roles.SuperAdmin)]
+[Authorize(Policy = Policies.SimSuporte)]
 [Tags("SIM Suporte")]
 public class SuporteUsersController(IUserAppService userAppService) : ControllerBase
 {
     /// <summary>
-    /// Provisions an application profile for an existing Supabase Auth user.
+    /// Invites a new user via email. Supabase sends the invitation automatically.
     /// Can assign any role including Admin (for org onboarding) and SuperAdmin (for support team).
     /// Step 2 of the onboarding workflow — requires the organization to already exist.
     /// </summary>
     [HttpPost]
-    public async Task<IActionResult> Create(
-        [FromBody] CreateUserViewModel vm,
+    public async Task<IActionResult> Invite(
+        [FromBody] InviteUserViewModel vm,
         CancellationToken cancellationToken)
     {
-        var result = await userAppService.CreateAsync(vm, cancellationToken);
+        var result = await userAppService.InviteAsync(vm, cancellationToken);
         return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
     }
 

@@ -2,10 +2,9 @@ using SIM.Domain.Enums;
 
 namespace SIM.Application.ViewModels.Users;
 
-public record CreateUserViewModel(
-    Guid SupabaseUserId,
-    string FullName,
+public record InviteUserViewModel(
     string Email,
+    string FullName,
     UserRole Role,
     Guid OrganizationId,
     Guid? UnitId);
