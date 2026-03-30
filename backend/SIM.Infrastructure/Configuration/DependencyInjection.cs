@@ -53,10 +53,8 @@ public static class DependencyInjection
         services.AddHttpClient("SupabaseAdmin", client =>
         {
             client.BaseAddress = new Uri($"{supabaseUrl}/auth/v1/");
-            client.DefaultRequestHeaders.Add("apikey", serviceRoleKey);
-            client.DefaultRequestHeaders.Authorization =
-                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", serviceRoleKey);
-        });
+        })
+        .AddHttpMessageHandler(() => new SupabaseAdminAuthHandler(serviceRoleKey));
 
         services.AddScoped<IAuthService, SupabaseAuthService>();
         services.AddScoped<IIdentityAdminService, SupabaseAdminService>();
