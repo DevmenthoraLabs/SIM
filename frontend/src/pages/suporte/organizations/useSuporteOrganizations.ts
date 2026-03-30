@@ -8,7 +8,7 @@ import type { OrganizationResponse } from '@/types'
 const createOrgSchema = z.object({
   name: z.string().min(1, 'Nome é obrigatório.').max(200, 'Nome muito longo.'),
   cnpj: z.string().regex(/^\d{14}$/, 'CNPJ deve conter 14 dígitos numéricos.'),
-  type: z.enum(['Public', 'Private'], { required_error: 'Tipo é obrigatório.' }),
+  type: z.enum(['Public', 'Private'], { error: 'Tipo é obrigatório.' }),
 })
 
 type CreateOrgFormValues = z.infer<typeof createOrgSchema>

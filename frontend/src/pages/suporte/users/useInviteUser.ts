@@ -11,7 +11,7 @@ const inviteSchema = z.object({
   fullName: z.string().min(1, 'Nome completo é obrigatório.').max(200, 'Nome muito longo.'),
   role: z.enum(
     ['SuperAdmin', 'Admin', 'Pharmacist', 'StockManager', 'ReceivingOperator'],
-    { required_error: 'Perfil é obrigatório.' }
+    { error: 'Perfil é obrigatório.' }
   ),
   organizationId: z.string().uuid('Selecione uma organização.'),
 })
