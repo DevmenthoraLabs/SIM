@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { useSearchParams, useNavigate } from 'react-router'
+import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -20,15 +20,44 @@ const schema = z
 
 type FormValues = z.infer<typeof schema>
 
+function parseFragment(): { accessToken: string; refreshToken: string; expiresIn: number; type: string } | null {
+  const hash = window.location.hash.slice(1)
+  if (!hash) return null
+
+  const params = new URLSearchParams(hash)
+  const accessToken = params.get('access_token')
+  const refreshToken = params.get('refresh_token')
+  const expiresIn = Number(params.get('expires_in') ?? '0')
+  const type = params.get('type') ?? ''
+
+  if (!accessToken || !refreshToken || !type) return null
+  return { accessToken, refreshToken, expiresIn, type }
+}
+
 export function useAuthCallback() {
-  const [searchParams] = useSearchParams()
   const navigate = useNavigate()
   const { setUser } = useAuthStore()
   const [serverError, setServerError] = useState<string | null>(null)
+  const [session, setSession] = useState<ReturnType<typeof parseFragment>>(null)
 
-  const tokenHash = searchParams.get('token_hash')
-  const type = searchParams.get('type')
-  const isValidToken = !!tokenHash && (type === 'invite' || type === 'recovery')
+  useEffect(() => {
+    const parsed = parseFragment()
+    if (!parsed) return
+
+    // Store the session from the invite/recovery fragment immediately.
+    // This authenticates the user so the set-password request can use their Bearer token.
+    const email = extractEmailFromToken(parsed.accessToken)
+    const role = extractRoleFromToken(parsed.accessToken)
+    const organizationId = extractOrganizationIdFromToken(parsed.accessToken)
+    tokenStorage.save(parsed.accessToken, parsed.refreshToken, parsed.expiresIn, email, role, organizationId)
+    setUser({ email, role, organizationId })
+    setSession(parsed)
+
+    // Clean the fragment from the URL without triggering a navigation.
+    window.history.replaceState(null, '', window.location.pathname)
+  }, [setUser])
+
+  const isValidSession = session !== null && (session.type === 'invite' || session.type === 'recovery')
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -38,20 +67,11 @@ export function useAuthCallback() {
   async function onSubmit(values: FormValues): Promise<void> {
     try {
       setServerError(null)
-      const { data } = await api.post('/api/auth/set-password', {
-        tokenHash,
-        type,
-        password: values.password,
-      })
-
-      const email = extractEmailFromToken(data.accessToken)
-      const role = extractRoleFromToken(data.accessToken)
-      const organizationId = extractOrganizationIdFromToken(data.accessToken)
-      tokenStorage.save(data.accessToken, data.refreshToken, data.expiresIn, email, role, organizationId)
-      setUser({ email, role, organizationId })
+      // User is now authenticated — the api instance sends the Bearer token automatically.
+      await api.post('/api/auth/set-password', { password: values.password })
       navigate('/', { replace: true })
     } catch {
-      setServerError('Token inválido ou expirado. Solicite um novo convite.')
+      setServerError('Não foi possível definir a senha. O link pode ter expirado.')
     }
   }
 
@@ -59,8 +79,8 @@ export function useAuthCallback() {
     form,
     onSubmit: form.handleSubmit(onSubmit),
     serverError,
-    isValidToken,
-    type,
+    isValidSession,
+    type: session?.type,
     isSubmitting: form.formState.isSubmitting,
   }
 }
