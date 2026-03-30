@@ -20,6 +20,13 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
         builder.Property(x => x.Description)
             .HasMaxLength(1000);
 
+        builder.Property(x => x.OrganizationId).IsRequired();
+        builder.HasIndex(x => x.OrganizationId);
+        builder.HasOne<Organization>()
+            .WithMany()
+            .HasForeignKey(x => x.OrganizationId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         builder.Property(x => x.CreatedAt).IsRequired();
         builder.Property(x => x.IsActive).IsRequired();
     }

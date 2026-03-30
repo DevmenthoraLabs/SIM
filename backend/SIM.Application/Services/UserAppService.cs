@@ -50,15 +50,10 @@ public class UserAppService(
         Guid id,
         CancellationToken cancellationToken = default)
     {
+        // Global query filter on UserProfile scopes to current user's org automatically.
+        // Cross-org access returns null (404) instead of a 400, eliminating user enumeration.
         var userProfile = await userProfileRepository.GetByIdAsync(id, cancellationToken);
-
-        if (userProfile is null)
-            return null;
-
-        if (!currentUserService.IsSuperAdmin && userProfile.OrganizationId != currentUserService.OrganizationId)
-            throw new BusinessLogicException(ValidationMessages.OrganizationAccessDenied);
-
-        return MapToViewModel(userProfile);
+        return userProfile is null ? null : MapToViewModel(userProfile);
     }
 
     public async Task UpdateRoleAsync(
@@ -75,9 +70,8 @@ public class UserAppService(
 
         if (!currentUserService.IsSuperAdmin)
         {
-            if (profile.OrganizationId != currentUserService.OrganizationId)
-                throw new BusinessLogicException(ValidationMessages.OrganizationAccessDenied);
-
+            // Note: cross-org access is already blocked by the Global Query Filter —
+            // GetByIdAsync returns null (UserNotFound) before this block is reached.
             if (vm.NewRole == UserRole.SuperAdmin)
                 throw new BusinessLogicException(ValidationMessages.CannotAssignSuperAdminRole);
 

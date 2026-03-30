@@ -2,18 +2,21 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SIM.Infrastructure.Data;
 
 #nullable disable
 
-namespace SIM.Infrastructure.Migrations
+namespace SIM.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260330031904_AddOrganizationIdToProducts")]
+    partial class AddOrganizationIdToProducts
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -136,15 +139,6 @@ namespace SIM.Infrastructure.Migrations
                     b.HasIndex("OrganizationId");
 
                     b.ToTable("user_profiles", (string)null);
-                });
-
-            modelBuilder.Entity("SIM.Domain.Entities.Product", b =>
-                {
-                    b.HasOne("SIM.Domain.Entities.Organization", null)
-                        .WithMany()
-                        .HasForeignKey("OrganizationId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("SIM.Domain.Entities.UserProfile", b =>

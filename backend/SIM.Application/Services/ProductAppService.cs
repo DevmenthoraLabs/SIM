@@ -1,4 +1,5 @@
 using FluentValidation;
+using SIM.Application.Abstractions;
 using SIM.Application.Abstractions.Services;
 using SIM.Application.Exceptions;
 using SIM.Application.ViewModels.Products;
@@ -10,6 +11,7 @@ namespace SIM.Application.Services;
 public class ProductAppService(
     IValidator<CreateProductViewModel> createValidator,
     IRepository<Product> repository,
+    ICurrentUserService currentUserService,
     IUnitOfWork unitOfWork) : IProductAppService
 {
     public async Task<ProductViewModel> CreateAsync(
@@ -20,7 +22,7 @@ public class ProductAppService(
         if (!validation.IsValid)
             throw new BusinessLogicException(string.Join(" ", validation.Errors.Select(e => e.ErrorMessage)));
 
-        var product = Product.Create(vm.Name, vm.Description);
+        var product = Product.Create(vm.Name, vm.Description, currentUserService.OrganizationId!.Value);
 
         await repository.AddAsync(product, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
@@ -32,6 +34,7 @@ public class ProductAppService(
         Guid id,
         CancellationToken cancellationToken = default)
     {
+        // Global query filter on Product automatically scopes to current user's org.
         var product = await repository.GetByIdAsync(id, cancellationToken);
         return product is null ? null : MapToViewModel(product);
     }
@@ -39,6 +42,7 @@ public class ProductAppService(
     public async Task<IReadOnlyList<ProductViewModel>> GetAllAsync(
         CancellationToken cancellationToken = default)
     {
+        // Global query filter on Product automatically scopes to current user's org.
         var products = await repository.GetAllAsync(cancellationToken);
         return products.Select(MapToViewModel).ToList();
     }
