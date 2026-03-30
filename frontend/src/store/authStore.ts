@@ -1,8 +1,10 @@
 import { create } from 'zustand'
 import { tokenStorage } from '../lib/tokenStorage'
 
-interface AuthUser {
+export interface AuthUser {
   email: string
+  role: string
+  organizationId: string
 }
 
 interface AuthState {
@@ -15,7 +17,9 @@ interface AuthState {
 function resolveInitialUser(): AuthUser | null {
   if (!tokenStorage.hasSession() || tokenStorage.isExpired()) return null
   const email = tokenStorage.getEmail()
-  return email ? { email } : null
+  const role = tokenStorage.getRole()
+  const organizationId = tokenStorage.getOrganizationId()
+  return email && role && organizationId ? { email, role, organizationId } : null
 }
 
 export const useAuthStore = create<AuthState>((set) => ({

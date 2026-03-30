@@ -33,6 +33,5 @@ public class CurrentUserService(IHttpContextAccessor httpContextAccessor) : ICur
 
     /// <inheritdoc/>
     public bool IsSuperAdmin =>
-        httpContextAccessor.HttpContext?.User
-            .FindFirstValue(ClaimTypes.Role) == Roles.SuperAdmin;
+        httpContextAccessor.HttpContext?.User.IsInRole(Roles.SuperAdmin) ?? false;
 }

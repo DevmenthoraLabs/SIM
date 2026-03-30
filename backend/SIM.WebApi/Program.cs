@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication;
 using Scalar.AspNetCore;
 using SIM.Application.Abstractions;
 using SIM.Application.Configuration;
+using SIM.Domain.Constants;
 using SIM.Infrastructure.Configuration;
 using SIM.WebApi.Auth;
 using SIM.WebApi.Configuration;
@@ -15,6 +16,13 @@ builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddAuthProvider(builder.Configuration);
 builder.Services.AddSupabaseAuthentication(builder.Configuration);
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy(Policies.SimSuporte, policy => policy
+        .RequireRole(Roles.SuperAdmin)
+        .RequireClaim(SimClaimTypes.OrganizationId, SystemOrganizations.SimSuporte.ToString()));
+});
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();

@@ -1,4 +1,5 @@
 import { api } from '../lib/api'
+import { extractRoleFromToken, extractOrganizationIdFromToken } from '../lib/jwtDecode'
 import { tokenStorage } from '../lib/tokenStorage'
 import { useAuthStore } from '../store/authStore'
 
@@ -7,8 +8,10 @@ export function useAuth() {
 
   async function signIn(email: string, password: string): Promise<void> {
     const { data } = await api.post('/api/auth/login', { email, password })
-    tokenStorage.save(data.accessToken, data.refreshToken, data.expiresIn, email)
-    setUser({ email })
+    const role = extractRoleFromToken(data.accessToken)
+    const organizationId = extractOrganizationIdFromToken(data.accessToken)
+    tokenStorage.save(data.accessToken, data.refreshToken, data.expiresIn, email, role, organizationId)
+    setUser({ email, role, organizationId })
   }
 
   return { user, isAuthenticated, signIn, signOut }
