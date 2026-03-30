@@ -12,6 +12,7 @@ namespace SIM.Application.Services;
 
 public class UserAppService(
     IValidator<CreateUserViewModel> createValidator,
+    IValidator<UpdateUserRoleViewModel> updateRoleValidator,
     IRepository<UserProfile> userProfileRepository,
     IRepository<Organization> organizationRepository,
     ICurrentUserService currentUserService,
@@ -49,15 +50,40 @@ public class UserAppService(
         Guid id,
         CancellationToken cancellationToken = default)
     {
+        // Global query filter on UserProfile scopes to current user's org automatically.
+        // Cross-org access returns null (404) instead of a 400, eliminating user enumeration.
         var userProfile = await userProfileRepository.GetByIdAsync(id, cancellationToken);
+        return userProfile is null ? null : MapToViewModel(userProfile);
+    }
 
-        if (userProfile is null)
-            return null;
+    public async Task UpdateRoleAsync(
+        Guid userId,
+        UpdateUserRoleViewModel vm,
+        CancellationToken cancellationToken = default)
+    {
+        var validation = await updateRoleValidator.ValidateAsync(vm, cancellationToken);
+        if (!validation.IsValid)
+            throw new BusinessLogicException(string.Join(" ", validation.Errors.Select(e => e.ErrorMessage)));
 
-        if (!currentUserService.IsSuperAdmin && userProfile.OrganizationId != currentUserService.OrganizationId)
-            throw new BusinessLogicException(ValidationMessages.OrganizationAccessDenied);
+        var profile = await userProfileRepository.GetByIdAsync(userId, cancellationToken)
+            ?? throw new BusinessLogicException(ValidationMessages.UserNotFound);
 
-        return MapToViewModel(userProfile);
+        if (!currentUserService.IsSuperAdmin)
+        {
+            // Note: cross-org access is already blocked by the Global Query Filter —
+            // GetByIdAsync returns null (UserNotFound) before this block is reached.
+            if (vm.NewRole == UserRole.SuperAdmin)
+                throw new BusinessLogicException(ValidationMessages.CannotAssignSuperAdminRole);
+
+            if (profile.Id == currentUserService.UserId)
+                throw new BusinessLogicException(ValidationMessages.CannotChangeOwnRole);
+        }
+
+        profile.UpdateRole(vm.NewRole);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        // The Custom Access Token Hook reads from user_profiles on every token refresh,
+        // so the new role takes effect automatically within the token's lifetime (~1h).
     }
 
     private static UserViewModel MapToViewModel(UserProfile u) =>

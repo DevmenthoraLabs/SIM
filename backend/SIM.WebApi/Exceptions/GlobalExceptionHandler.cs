@@ -26,7 +26,10 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IE
         {
             Status = statusCode,
             Title  = title,
-            Detail = exception.Message
+            // Never expose internal exception details to the client on 500s.
+            Detail = statusCode == StatusCodes.Status500InternalServerError
+                ? "An unexpected error occurred. Please try again later."
+                : exception.Message
         };
 
         httpContext.Response.StatusCode = statusCode;

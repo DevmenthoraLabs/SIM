@@ -37,4 +37,19 @@ public class UsersController(IUserAppService userAppService) : ControllerBase
         var result = await userAppService.GetByIdAsync(id, cancellationToken);
         return result is null ? NotFound() : Ok(result);
     }
+
+    /// <summary>
+    /// Updates the role of a user within the Admin's organization.
+    /// The new role takes effect on the user's next token refresh (~1h).
+    /// Admins cannot change their own role.
+    /// </summary>
+    [HttpPatch("{id:guid}/role")]
+    public async Task<IActionResult> UpdateRole(
+        Guid id,
+        [FromBody] UpdateUserRoleViewModel vm,
+        CancellationToken cancellationToken)
+    {
+        await userAppService.UpdateRoleAsync(id, vm, cancellationToken);
+        return NoContent();
+    }
 }

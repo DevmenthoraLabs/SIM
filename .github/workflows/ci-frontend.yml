@@ -2,14 +2,16 @@ name: CI Frontend
 
 on:
   push:
-    branches: [main]
+    branches: [main, Development]
     paths:
       - 'frontend/**'
+      - '.github/workflows/ci-frontend.yml'
   pull_request:
-    branches: [main]
+    branches: [main, Development]
     paths:
       - 'frontend/**'
-
+      - '.github/workflows/ci-frontend.yml' 
+      
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -30,4 +32,6 @@ jobs:
 
       - name: Build
         working-directory: frontend
+        env:
+          VITE_API_URL: ${{ secrets.VITE_API_URL }}
         run: npm run build

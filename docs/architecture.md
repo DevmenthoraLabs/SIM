@@ -35,9 +35,78 @@ Essa é a abordagem padrão de SaaS (adotada por Notion, Linear, GitHub etc.) e 
 - Migrations e deployments unificados
 - Supabase tem um único projeto por ambiente (dev/staging/prod)
 
-A isolação é garantida por lógica de aplicação: `UserAppService` verifica que `Admin` só opera dentro da sua organização. `SuperAdmin` (equipe interna SIM) é a única role sem escopo de organização.
-
 Para escalar para schema-per-tenant ou database-per-tenant no futuro, o ponto de mudança é o `ApplicationDbContext` e o connection string — as camadas superiores não mudam.
+
+---
+
+### Isolamento de Dados por Organização
+
+O isolamento é garantido em **duas camadas independentes**, cobrindo leitura e escrita separadamente.
+
+#### Leitura — Global Query Filter
+
+Toda entidade que pertence a uma organização implementa a interface `IOrganizationScoped` (em `SIM.Domain/Abstractions/`):
+
+```csharp
+public interface IOrganizationScoped
+{
+    Guid OrganizationId { get; }
+}
+```
+
+O `ApplicationDbContext` detecta via reflection todas as entidades que implementam essa interface e registra um **Global Query Filter** automático:
+
+```csharp
+// Aplicado automaticamente em todo SELECT dessas entidades
+WHERE "OrganizationId" = @currentUserOrgId
+```
+
+Isso garante que **nenhuma query de leitura pode retornar dados de outra organização**, independente de como o AppService foi escrito. Desenvolvedores não precisam lembrar de filtrar — a proteção é estrutural.
+
+**Entidades com filtro ativo:** `Product`, `UserProfile`
+**Entidades sem filtro:** `Organization` (é a própria raiz do tenant, não pertence a outra org)
+
+#### Escrita — SaveChangesAsync Guard
+
+O `ApplicationDbContext` sobrescreve `SaveChangesAsync` e valida toda operação de escrita antes do commit:
+
+```csharp
+// Lançado se qualquer entidade IOrganizationScoped for salva com OrganizationId incorreto
+throw new InvalidOperationException("Organization scope violation: Product...");
+```
+
+Um AppService descuidado que construir uma entidade com o `OrganizationId` errado será bloqueado **antes de qualquer dado ser persistido**.
+
+#### Adicionando uma nova entidade multi-tenant
+
+Para que uma nova entidade respeite o isolamento automaticamente:
+
+```csharp
+public class StockItem : BaseEntity, IOrganizationScoped  // ← implementar a interface
+{
+    public Guid OrganizationId { get; private set; }      // ← propriedade obrigatória
+    // ...
+}
+```
+
+Apenas isso. O filtro de leitura e o guard de escrita são aplicados automaticamente.
+
+#### Bypass para SuperAdmin — situação atual e roadmap
+
+O Global Query Filter inclui uma condição de bypass para `SuperAdmin`:
+
+```csharp
+WHERE @isSuperAdmin OR "OrganizationId" = @orgId
+```
+
+Isso é necessário porque os AppServices são **compartilhados** entre os controllers de org (`/api/*`) e os controllers de suporte (`/api/suporte/*`). Um `SuperAdmin` precisa acessar dados de qualquer organização, então o filtro é desativado para ele.
+
+**Implicações do design atual:**
+- Para usuários comuns (`@isSuperAdmin = false`), o SQL gerado é equivalente a `WHERE "OrganizationId" = @orgId` — indexado e eficiente
+- Para SuperAdmin, o filtro é contornado e o banco retorna todos os registros
+- A condição booleana no SQL é uma consequência de serviços compartilhados
+
+**Roadmap:** Quando a área de suporte crescer o suficiente para justificar uma API dedicada (`api.suporte.sim.com.br` ou similar), os serviços Suporte passarão a usar `IgnoreQueryFilters()` explicitamente, e o `IsSuperAdmin` sairá do filtro — o SQL de org ficará limpo sem condicionais. Essa separação não afeta as camadas de Domain e Application; a mudança é exclusivamente em Infrastructure e WebApi.
 
 ### Por que existe o role `SuperAdmin`?
 
