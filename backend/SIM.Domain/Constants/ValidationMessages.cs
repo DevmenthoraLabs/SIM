@@ -28,6 +28,7 @@ public static class ValidationMessages
     public const string CnpjInvalid = "CNPJ must contain 14 numeric digits.";
 
     public const string CannotAssignSuperAdminRole = "Admin users cannot assign the SuperAdmin role.";
+    public const string CannotChangeOwnRole        = "You cannot change your own role.";
     public const string OrganizationAccessDenied = "You can only manage users within your own organization.";
 
     // Product

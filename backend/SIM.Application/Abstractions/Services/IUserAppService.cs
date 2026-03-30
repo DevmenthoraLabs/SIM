@@ -6,4 +6,5 @@ public interface IUserAppService
 {
     Task<UserViewModel> CreateAsync(CreateUserViewModel vm, CancellationToken cancellationToken = default);
     Task<UserViewModel?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+    Task UpdateRoleAsync(Guid userId, UpdateUserRoleViewModel vm, CancellationToken cancellationToken = default);
 }

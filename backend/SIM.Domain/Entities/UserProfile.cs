@@ -58,6 +58,12 @@ public class UserProfile
         };
     }
 
+    public void UpdateRole(UserRole newRole)
+    {
+        Role = newRole;
+        UpdatedAt = DateTime.UtcNow;
+    }
+
     public void Deactivate()
     {
         IsActive = false;
