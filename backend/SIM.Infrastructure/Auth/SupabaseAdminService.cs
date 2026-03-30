@@ -41,6 +41,26 @@ public class SupabaseAdminService(
         return result.Id;
     }
 
+    public async Task UpdatePasswordAsync(Guid userId, string password, CancellationToken cancellationToken = default)
+    {
+        var client = httpClientFactory.CreateClient("SupabaseAdmin");
+
+        var response = await client.PutAsJsonAsync(
+            $"admin/users/{userId}",
+            new { password },
+            cancellationToken);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            var body = await response.Content.ReadAsStringAsync(cancellationToken);
+            logger.LogError(
+                "Supabase update password failed. Status: {Status}, Body: {Body}",
+                (int)response.StatusCode, body);
+
+            throw new BusinessLogicException(ValidationMessages.SetPasswordFailed);
+        }
+    }
+
     private sealed record SupabaseAdminUserResponse(
         [property: JsonPropertyName("id")] Guid Id);
 }

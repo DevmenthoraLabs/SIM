@@ -14,9 +14,9 @@ const SUBTITLES: Record<string, string> = {
 }
 
 export default function AuthCallbackPage() {
-  const { form, onSubmit, serverError, isValidToken, type, isSubmitting } = useAuthCallback()
+  const { form, onSubmit, serverError, isValidSession, type, isSubmitting } = useAuthCallback()
 
-  if (!isValidToken) {
+  if (!isValidSession) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center space-y-2">

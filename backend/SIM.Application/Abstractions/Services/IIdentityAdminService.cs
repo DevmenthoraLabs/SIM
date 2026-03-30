@@ -13,4 +13,10 @@ public interface IIdentityAdminService
     /// Returns the new user's UUID for immediate UserProfile creation.
     /// </summary>
     Task<Guid> InviteUserAsync(string email, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Updates the password of an existing user via the admin API.
+    /// Called after the user has authenticated via an invite or recovery email.
+    /// </summary>
+    Task UpdatePasswordAsync(Guid userId, string password, CancellationToken cancellationToken = default);
 }

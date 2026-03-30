@@ -1,13 +1,21 @@
+using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SIM.Application.Abstractions;
 using SIM.Application.Abstractions.Services;
+using SIM.Application.Exceptions;
 using SIM.Application.ViewModels.Auth;
+using SIM.Domain.Constants;
 
 namespace SIM.WebApi.Controllers;
 
 [ApiController]
 [Route("api/auth")]
-public class AuthController(IAuthService authService) : ControllerBase
+public class AuthController(
+    IAuthService authService,
+    IIdentityAdminService identityAdminService,
+    IValidator<SetPasswordViewModel> setPasswordValidator,
+    ICurrentUserService currentUserService) : ControllerBase
 {
     /// <summary>
     /// Authenticates a user and returns an access token and refresh token.
@@ -38,17 +46,22 @@ public class AuthController(IAuthService authService) : ControllerBase
     }
 
     /// <summary>
-    /// Verifies a one-time token from an invite or password recovery email,
-    /// sets the user's new password, and returns a session.
-    /// The frontend should use the returned tokens to log the user in immediately.
+    /// Sets the password for the currently authenticated user.
+    /// Called after accepting an invite or password recovery email —
+    /// the frontend receives a session via the URL fragment and uses it
+    /// to authenticate this request before setting the password.
     /// </summary>
     [HttpPost("set-password")]
-    [AllowAnonymous]
+    [Authorize]
     public async Task<IActionResult> SetPassword(
         [FromBody] SetPasswordViewModel vm,
         CancellationToken cancellationToken)
     {
-        var result = await authService.SetPasswordAsync(vm, cancellationToken);
-        return Ok(result);
+        var validation = await setPasswordValidator.ValidateAsync(vm, cancellationToken);
+        if (!validation.IsValid)
+            throw new BusinessLogicException(string.Join(" ", validation.Errors.Select(e => e.ErrorMessage)));
+
+        await identityAdminService.UpdatePasswordAsync(currentUserService.UserId, vm.Password, cancellationToken);
+        return NoContent();
     }
 }

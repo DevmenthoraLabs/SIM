@@ -1,3 +1,3 @@
 namespace SIM.Application.ViewModels.Auth;
 
-public record SetPasswordViewModel(string TokenHash, string Type, string Password);
+public record SetPasswordViewModel(string Password);
