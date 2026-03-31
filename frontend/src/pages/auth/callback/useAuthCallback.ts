@@ -6,7 +6,11 @@ import { z } from 'zod'
 import { extractErrorMessage } from '@/lib/api'
 import { authService } from '@/services/authService'
 import { tokenStorage } from '@/lib/tokenStorage'
-import { extractRoleFromToken, extractEmailFromToken, extractOrganizationIdFromToken } from '@/lib/jwtDecode'
+import {
+  extractRoleFromToken,
+  extractEmailFromToken,
+  extractOrganizationIdFromToken,
+} from '@/lib/jwtDecode'
 import { useAuthStore } from '@/store/authStore'
 
 const schema = z
@@ -21,7 +25,12 @@ const schema = z
 
 type FormValues = z.infer<typeof schema>
 
-function parseFragment(): { accessToken: string; refreshToken: string; expiresIn: number; type: string } | null {
+function parseFragment(): {
+  accessToken: string
+  refreshToken: string
+  expiresIn: number
+  type: string
+} | null {
   const hash = window.location.hash.slice(1)
   if (!hash) return null
 
@@ -39,26 +48,32 @@ export function useAuthCallback() {
   const navigate = useNavigate()
   const { setUser } = useAuthStore()
   const [serverError, setServerError] = useState<string | null>(null)
-  const [session, setSession] = useState<ReturnType<typeof parseFragment>>(null)
+  const [session] = useState(() => parseFragment())
 
   useEffect(() => {
-    const parsed = parseFragment()
-    if (!parsed) return
+    if (!session) return
 
     // Store the session from the invite/recovery fragment immediately.
     // This authenticates the user so the set-password request can use their Bearer token.
-    const email = extractEmailFromToken(parsed.accessToken)
-    const role = extractRoleFromToken(parsed.accessToken)
-    const organizationId = extractOrganizationIdFromToken(parsed.accessToken)
-    tokenStorage.save(parsed.accessToken, parsed.refreshToken, parsed.expiresIn, email, role, organizationId)
+    const email = extractEmailFromToken(session.accessToken)
+    const role = extractRoleFromToken(session.accessToken)
+    const organizationId = extractOrganizationIdFromToken(session.accessToken)
+    tokenStorage.save(
+      session.accessToken,
+      session.refreshToken,
+      session.expiresIn,
+      email,
+      role,
+      organizationId
+    )
     setUser({ email, role, organizationId })
-    setSession(parsed)
 
     // Clean the fragment from the URL without triggering a navigation.
     window.history.replaceState(null, '', window.location.pathname)
-  }, [setUser])
+  }, [session, setUser])
 
-  const isValidSession = session !== null && (session.type === 'invite' || session.type === 'recovery')
+  const isValidSession =
+    session !== null && (session.type === 'invite' || session.type === 'recovery')
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -72,7 +87,9 @@ export function useAuthCallback() {
       await authService.setPassword(values.password)
       navigate('/', { replace: true })
     } catch (error) {
-      setServerError(extractErrorMessage(error, 'Não foi possível definir a senha. O link pode ter expirado.'))
+      setServerError(
+        extractErrorMessage(error, 'Não foi possível definir a senha. O link pode ter expirado.')
+      )
     }
   }
 
