@@ -2,6 +2,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useInviteUser } from './useInviteUser'
 
 const ROLE_LABELS: Record<string, string> = {
@@ -77,17 +78,18 @@ export default function InviteUserPage() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Organização</FormLabel>
-                      <FormControl>
-                        <select
-                          {...field}
-                          className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring"
-                        >
-                          <option value="">Selecione uma organização...</option>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecione uma organização..." />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
                           {organizations.map((org) => (
-                            <option key={org.id} value={org.id}>{org.name}</option>
+                            <SelectItem key={org.id} value={org.id}>{org.name}</SelectItem>
                           ))}
-                        </select>
-                      </FormControl>
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -98,16 +100,18 @@ export default function InviteUserPage() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Perfil</FormLabel>
-                      <FormControl>
-                        <select
-                          {...field}
-                          className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring"
-                        >
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecione um perfil..." />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
                           {Object.entries(ROLE_LABELS).map(([value, label]) => (
-                            <option key={value} value={value}>{label}</option>
+                            <SelectItem key={value} value={value}>{label}</SelectItem>
                           ))}
-                        </select>
-                      </FormControl>
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}

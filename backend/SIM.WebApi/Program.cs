@@ -27,10 +27,10 @@ builder.Services.AddAuthorization(options =>
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 
-// Claims transformation: carrega o UserProfile do DB e injeta o Role como claim ASP.NET Core
+// Claims transformation: mapeia claims do JWT (provider-specific) para claims padrão da aplicação
 builder.Services.AddScoped<IClaimsTransformation, SupabaseClaimsTransformation>();
 
-// CurrentUserService: disponibiliza o UserId do JWT autenticado para os AppServices
+// CurrentUserService: disponibiliza o UserId do JWT autenticado para os handlers
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 

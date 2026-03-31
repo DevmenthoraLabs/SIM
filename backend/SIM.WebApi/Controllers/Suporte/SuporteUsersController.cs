@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SIM.Application.Abstractions.Services;
+using SIM.Application.Features.Users;
 using SIM.Application.ViewModels.Users;
-using SIM.WebApi.Auth;
+using SIM.Domain.Constants;
 
 namespace SIM.WebApi.Controllers.Suporte;
 
@@ -15,7 +15,7 @@ namespace SIM.WebApi.Controllers.Suporte;
 [Route("api/suporte/users")]
 [Authorize(Policy = Policies.SimSuporte)]
 [Tags("SIM Suporte")]
-public class SuporteUsersController(IUserAppService userAppService) : ControllerBase
+public class SuporteUsersController : ControllerBase
 {
     /// <summary>
     /// Invites a new user via email. Supabase sends the invitation automatically.
@@ -25,9 +25,10 @@ public class SuporteUsersController(IUserAppService userAppService) : Controller
     [HttpPost]
     public async Task<IActionResult> Invite(
         [FromBody] InviteUserViewModel vm,
+        [FromServices] InviteUserCommandHandler handler,
         CancellationToken cancellationToken)
     {
-        var result = await userAppService.InviteAsync(vm, cancellationToken);
+        var result = await handler.HandleAsync(vm, cancellationToken);
         return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
     }
 
@@ -35,9 +36,12 @@ public class SuporteUsersController(IUserAppService userAppService) : Controller
     /// Returns a user profile by ID.
     /// </summary>
     [HttpGet("{id:guid}")]
-    public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetById(
+        Guid id,
+        [FromServices] GetUserByIdQuery query,
+        CancellationToken cancellationToken)
     {
-        var result = await userAppService.GetByIdAsync(id, cancellationToken);
+        var result = await query.HandleAsync(id, cancellationToken);
         return result is null ? NotFound() : Ok(result);
     }
 }
