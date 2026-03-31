@@ -65,6 +65,10 @@ coverage/
 *.lcov
 .ionide/
 
+## --- Root (Husky) ---
+node_modules/
+package-lock.json
+
 ## --- Frontend (React / Vite) ---
 frontend/node_modules/
 frontend/dist/

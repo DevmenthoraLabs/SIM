@@ -7,7 +7,6 @@ using SIM.Application.Abstractions.Services;
 using SIM.Domain.Abstractions;
 using SIM.Infrastructure.Auth;
 using SIM.Infrastructure.Data;
-using SIM.Infrastructure.Repositories;
 
 namespace SIM.Infrastructure.Configuration;
 
@@ -17,11 +16,13 @@ public static class DependencyInjection
         this IServiceCollection services,
         IConfiguration configuration)
     {
-        services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
+        var connectionString = configuration.GetConnectionString("DefaultConnection")
+            ?? throw new InvalidOperationException("ConnectionStrings:DefaultConnection is not configured.");
 
-        services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-        services.AddScoped<IUnitOfWork, UnitOfWork>();
+        services.AddDbContext<ApplicationDbContext>(options =>
+            options.UseNpgsql(connectionString));
+
+        services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<ApplicationDbContext>());
 
         return services;
     }
@@ -79,8 +80,6 @@ public static class DependencyInjection
             .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
             {
-                // Authority triggers OIDC discovery: fetches {authority}/.well-known/openid-configuration
-                // which points to the JWKS endpoint with Supabase's public keys.
                 options.Authority = authority;
                 options.TokenValidationParameters = new TokenValidationParameters
                 {

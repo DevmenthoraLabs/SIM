@@ -1,21 +1,16 @@
-using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SIM.Application.Abstractions;
+using Microsoft.AspNetCore.RateLimiting;
 using SIM.Application.Abstractions.Services;
-using SIM.Application.Exceptions;
+using SIM.Application.Features.Auth;
 using SIM.Application.ViewModels.Auth;
-using SIM.Domain.Constants;
+using SIM.WebApi.Configuration;
 
 namespace SIM.WebApi.Controllers;
 
 [ApiController]
 [Route("api/auth")]
-public class AuthController(
-    IAuthService authService,
-    IIdentityAdminService identityAdminService,
-    IValidator<SetPasswordViewModel> setPasswordValidator,
-    ICurrentUserService currentUserService) : ControllerBase
+public class AuthController : ControllerBase
 {
     /// <summary>
     /// Authenticates a user and returns an access token and refresh token.
@@ -23,8 +18,10 @@ public class AuthController(
     /// </summary>
     [HttpPost("login")]
     [AllowAnonymous]
+    [EnableRateLimiting(RateLimitingExtensions.AuthPolicy)]
     public async Task<IActionResult> Login(
         [FromBody] LoginViewModel vm,
+        [FromServices] IAuthService authService,
         CancellationToken cancellationToken)
     {
         var result = await authService.LoginAsync(vm, cancellationToken);
@@ -37,8 +34,10 @@ public class AuthController(
     /// </summary>
     [HttpPost("refresh")]
     [AllowAnonymous]
+    [EnableRateLimiting(RateLimitingExtensions.AuthPolicy)]
     public async Task<IActionResult> Refresh(
         [FromBody] RefreshViewModel vm,
+        [FromServices] IAuthService authService,
         CancellationToken cancellationToken)
     {
         var result = await authService.RefreshAsync(vm, cancellationToken);
@@ -55,13 +54,10 @@ public class AuthController(
     [Authorize]
     public async Task<IActionResult> SetPassword(
         [FromBody] SetPasswordViewModel vm,
+        [FromServices] SetPasswordCommandHandler handler,
         CancellationToken cancellationToken)
     {
-        var validation = await setPasswordValidator.ValidateAsync(vm, cancellationToken);
-        if (!validation.IsValid)
-            throw new BusinessLogicException(string.Join(" ", validation.Errors.Select(e => e.ErrorMessage)));
-
-        await identityAdminService.UpdatePasswordAsync(currentUserService.UserId, vm.Password, cancellationToken);
+        await handler.HandleAsync(vm, cancellationToken);
         return NoContent();
     }
 }

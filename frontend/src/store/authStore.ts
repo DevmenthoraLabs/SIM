@@ -22,9 +22,11 @@ function resolveInitialUser(): AuthUser | null {
   return email && role && organizationId ? { email, role, organizationId } : null
 }
 
+const initialUser = resolveInitialUser()
+
 export const useAuthStore = create<AuthState>((set) => ({
-  user: resolveInitialUser(),
-  isAuthenticated: resolveInitialUser() !== null,
+  user: initialUser,
+  isAuthenticated: initialUser !== null,
 
   setUser: (user) => set({ user, isAuthenticated: user !== null }),
 

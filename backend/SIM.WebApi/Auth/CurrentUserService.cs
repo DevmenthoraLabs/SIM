@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using SIM.Application.Abstractions;
+using SIM.Domain.Constants;
 
 namespace SIM.WebApi.Auth;
 

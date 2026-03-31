@@ -1,3 +1,4 @@
+using Dapper;
 using Microsoft.EntityFrameworkCore;
 using SIM.Application.Abstractions;
 using SIM.Domain.Abstractions;
@@ -8,7 +9,7 @@ namespace SIM.Infrastructure.Data;
 
 public class ApplicationDbContext(
     DbContextOptions<ApplicationDbContext> options,
-    ICurrentUserService currentUserService) : DbContext(options)
+    ICurrentUserService currentUserService) : DbContext(options), IUnitOfWork
 {
     public DbSet<Organization> Organizations => Set<Organization>();
     public DbSet<UserProfile> UserProfiles => Set<UserProfile>();
@@ -52,13 +53,47 @@ public class ApplicationDbContext(
     /// Guards every write operation involving IOrganizationScoped entities.
     /// Prevents any careless service from persisting data under the wrong organization.
     /// SuperAdmin operations bypass this check intentionally.
+    /// Both sync and async overrides are guarded to prevent accidental bypass.
     /// </summary>
+    public override int SaveChanges(bool acceptAllChangesOnSuccess)
+    {
+        if (!currentUserService.IsSuperAdmin)
+            EnforceOrganizationScope();
+
+        return base.SaveChanges(acceptAllChangesOnSuccess);
+    }
+
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         if (!currentUserService.IsSuperAdmin)
             EnforceOrganizationScope();
 
         return await base.SaveChangesAsync(cancellationToken);
+    }
+
+    /// <remarks>
+    /// Dapper queries bypass EF Core global query filters.
+    /// You MUST include an OrganizationId WHERE clause manually for IOrganizationScoped data.
+    /// </remarks>
+    public async Task<T?> QueryFirstOrDefaultAsync<T>(
+        string sql,
+        object? parameters = null,
+        CancellationToken cancellationToken = default)
+    {
+        var connection = Database.GetDbConnection();
+        var command = new CommandDefinition(sql, parameters, cancellationToken: cancellationToken);
+        return await connection.QueryFirstOrDefaultAsync<T>(command);
+    }
+
+    /// <inheritdoc cref="QueryFirstOrDefaultAsync{T}"/>
+    public async Task<IEnumerable<T>> QueryAsync<T>(
+        string sql,
+        object? parameters = null,
+        CancellationToken cancellationToken = default)
+    {
+        var connection = Database.GetDbConnection();
+        var command = new CommandDefinition(sql, parameters, cancellationToken: cancellationToken);
+        return await connection.QueryAsync<T>(command);
     }
 
     private void EnforceOrganizationScope()
