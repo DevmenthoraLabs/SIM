@@ -7,10 +7,17 @@ export function useAuth() {
   const { user, isAuthenticated, setUser, signOut } = useAuthStore()
 
   async function signIn(email: string, password: string): Promise<void> {
-    const { data } = await authService.login(email, password)
-    const role = extractRoleFromToken(data.accessToken)
-    const organizationId = extractOrganizationIdFromToken(data.accessToken)
-    tokenStorage.save(data.accessToken, data.refreshToken, data.expiresIn, email, role, organizationId)
+    const loginResponse = await authService.login(email, password)
+    const role = extractRoleFromToken(loginResponse.accessToken)
+    const organizationId = extractOrganizationIdFromToken(loginResponse.accessToken)
+    tokenStorage.save(
+      loginResponse.accessToken,
+      loginResponse.refreshToken,
+      loginResponse.expiresIn,
+      email,
+      role,
+      organizationId
+    )
     setUser({ email, role, organizationId })
   }
 

@@ -2,6 +2,7 @@ import axios from 'axios'
 import { extractRoleFromToken, extractOrganizationIdFromToken } from './jwtDecode'
 import { tokenStorage } from './tokenStorage'
 import { useAuthStore } from '../store/authStore'
+import { RefreshResponseSchema } from '@/types'
 
 const apiUrl = import.meta.env.VITE_API_URL
 
@@ -10,7 +11,7 @@ if (!apiUrl) {
 }
 
 // Separate instance used only for token refresh to avoid circular interceptor calls
-const authClient = axios.create({ baseURL: apiUrl })
+const authClient = axios.create({ baseURL: apiUrl, timeout: 15_000 })
 
 export function extractErrorMessage(error: unknown, fallback: string): string {
   if (axios.isAxiosError(error) && error.response?.data?.detail) {
@@ -21,6 +22,7 @@ export function extractErrorMessage(error: unknown, fallback: string): string {
 
 export const api = axios.create({
   baseURL: apiUrl,
+  timeout: 15_000,
   headers: { 'Content-Type': 'application/json' },
 })
 
@@ -80,12 +82,20 @@ api.interceptors.response.use(
 
     try {
       const { data } = await authClient.post('/api/auth/refresh', { refreshToken })
+      const parsed = RefreshResponseSchema.parse(data)
       const email = tokenStorage.getEmail() ?? ''
-      const role = extractRoleFromToken(data.accessToken)
-      const organizationId = extractOrganizationIdFromToken(data.accessToken)
-      tokenStorage.save(data.accessToken, data.refreshToken, data.expiresIn, email, role, organizationId)
-      processQueue(null, data.accessToken)
-      originalRequest.headers.Authorization = `Bearer ${data.accessToken}`
+      const role = extractRoleFromToken(parsed.accessToken)
+      const organizationId = extractOrganizationIdFromToken(parsed.accessToken)
+      tokenStorage.save(
+        parsed.accessToken,
+        parsed.refreshToken,
+        parsed.expiresIn,
+        email,
+        role,
+        organizationId
+      )
+      processQueue(null, parsed.accessToken)
+      originalRequest.headers.Authorization = `Bearer ${parsed.accessToken}`
       return api(originalRequest)
     } catch (refreshError) {
       processQueue(refreshError, null)

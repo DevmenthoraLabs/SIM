@@ -13,10 +13,9 @@ import { userService } from '@/services/userService'
 const inviteSchema = z.object({
   email: z.string().email('Email inválido.'),
   fullName: z.string().min(1, 'Nome completo é obrigatório.').max(200, 'Nome muito longo.'),
-  role: z.enum(
-    ['SuperAdmin', 'Admin', 'Pharmacist', 'StockManager', 'ReceivingOperator'],
-    { error: 'Perfil é obrigatório.' }
-  ),
+  role: z.enum(['SuperAdmin', 'Admin', 'Pharmacist', 'StockManager', 'ReceivingOperator'], {
+    error: 'Perfil é obrigatório.',
+  }),
   organizationId: z.string().uuid('Selecione uma organização.'),
 })
 
@@ -29,7 +28,7 @@ export function useInviteUser() {
 
   const { data: organizations = [] } = useQuery({
     queryKey: queryKeys.organizations,
-    queryFn: () => organizationService.getAll().then((r) => r.data),
+    queryFn: () => organizationService.getAll(),
   })
 
   const form = useForm<InviteFormValues>({
@@ -46,7 +45,9 @@ export function useInviteUser() {
       toast.success('Convite enviado com sucesso.')
     },
     onError: (error) => {
-      setServerError(extractErrorMessage(error, 'Erro ao enviar convite. Verifique os dados e tente novamente.'))
+      setServerError(
+        extractErrorMessage(error, 'Erro ao enviar convite. Verifique os dados e tente novamente.')
+      )
     },
   })
 
