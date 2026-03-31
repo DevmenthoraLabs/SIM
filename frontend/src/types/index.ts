@@ -13,7 +13,7 @@ export const RefreshResponseSchema = TokenResponseSchema
 export type RefreshResponse = z.infer<typeof RefreshResponseSchema>
 
 export const OrganizationResponseSchema = z.object({
-  id: z.string().uuid(),
+  id: z.string(),
   name: z.string(),
   cnpj: z.string(),
   type: z.enum(['Public', 'Private']),
