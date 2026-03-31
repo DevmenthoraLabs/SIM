@@ -16,7 +16,7 @@ const inviteSchema = z.object({
   role: z.enum(['SuperAdmin', 'Admin', 'Pharmacist', 'StockManager', 'ReceivingOperator'], {
     error: 'Perfil é obrigatório.',
   }),
-  organizationId: z.string().uuid('Selecione uma organização.'),
+  organizationId: z.string().min(1, 'Selecione uma organização.'),
 })
 
 type InviteFormValues = z.infer<typeof inviteSchema>
