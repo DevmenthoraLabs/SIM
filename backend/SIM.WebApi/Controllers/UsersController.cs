@@ -1,21 +1,21 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SIM.Application.Abstractions.Services;
+using SIM.Application.Features.Users;
 using SIM.Application.ViewModels.Users;
-using SIM.WebApi.Auth;
+using SIM.Domain.Constants;
 
 namespace SIM.WebApi.Controllers;
 
 /// <summary>
 /// User management endpoints for organization-level Admins.
 /// Admins can only invite and view users within their own organization.
-/// Org isolation and role restrictions are enforced in UserAppService.
+/// Org isolation and role restrictions are enforced in the handlers.
 /// For cross-org operations, see the SIM Suporte area (api/suporte/users).
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
 [Authorize(Roles = Roles.Admin)]
-public class UsersController(IUserAppService userAppService) : ControllerBase
+public class UsersController : ControllerBase
 {
     /// <summary>
     /// Invites a new user via email. Supabase sends the invitation automatically.
@@ -25,16 +25,20 @@ public class UsersController(IUserAppService userAppService) : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Invite(
         [FromBody] InviteUserViewModel vm,
+        [FromServices] InviteUserCommandHandler handler,
         CancellationToken cancellationToken)
     {
-        var result = await userAppService.InviteAsync(vm, cancellationToken);
+        var result = await handler.HandleAsync(vm, cancellationToken);
         return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
     }
 
     [HttpGet("{id:guid}")]
-    public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetById(
+        Guid id,
+        [FromServices] GetUserByIdQuery query,
+        CancellationToken cancellationToken)
     {
-        var result = await userAppService.GetByIdAsync(id, cancellationToken);
+        var result = await query.HandleAsync(id, cancellationToken);
         return result is null ? NotFound() : Ok(result);
     }
 
@@ -47,9 +51,10 @@ public class UsersController(IUserAppService userAppService) : ControllerBase
     public async Task<IActionResult> UpdateRole(
         Guid id,
         [FromBody] UpdateUserRoleViewModel vm,
+        [FromServices] UpdateUserRoleCommandHandler handler,
         CancellationToken cancellationToken)
     {
-        await userAppService.UpdateRoleAsync(id, vm, cancellationToken);
+        await handler.HandleAsync(id, vm, cancellationToken);
         return NoContent();
     }
 }

@@ -3,11 +3,12 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useNavigate } from 'react-router'
 import { z } from 'zod'
+import { extractErrorMessage } from '@/lib/api'
 import { useAuth } from '@/hooks/useAuth'
 
 const loginSchema = z.object({
-  email: z.string().email('Enter a valid email address.'),
-  password: z.string().min(1, 'Password is required.'),
+  email: z.string().email('Informe um email válido.'),
+  password: z.string().min(1, 'Senha é obrigatória.'),
 })
 
 type LoginFormValues = z.infer<typeof loginSchema>
@@ -27,8 +28,8 @@ export function useLoginForm() {
       setServerError(null)
       await signIn(values.email, values.password)
       navigate('/', { replace: true })
-    } catch {
-      setServerError('Invalid email or password.')
+    } catch (error) {
+      setServerError(extractErrorMessage(error, 'Email ou senha inválidos.'))
     }
   }
 

@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SIM.Application.Abstractions.Services;
+using SIM.Application.Features.Organizations;
 using SIM.Application.ViewModels.Organizations;
-using SIM.WebApi.Auth;
+using SIM.Domain.Constants;
 
 namespace SIM.WebApi.Controllers.Suporte;
 
@@ -15,7 +15,7 @@ namespace SIM.WebApi.Controllers.Suporte;
 [Route("api/suporte/organizations")]
 [Authorize(Policy = Policies.SimSuporte)]
 [Tags("SIM Suporte")]
-public class SuporteOrganizationsController(IOrganizationAppService organizationAppService) : ControllerBase
+public class SuporteOrganizationsController : ControllerBase
 {
     /// <summary>
     /// Creates a new client organization (e.g., a pharmacy network).
@@ -24,9 +24,10 @@ public class SuporteOrganizationsController(IOrganizationAppService organization
     [HttpPost]
     public async Task<IActionResult> Create(
         [FromBody] CreateOrganizationViewModel vm,
+        [FromServices] CreateOrganizationCommandHandler handler,
         CancellationToken cancellationToken)
     {
-        var result = await organizationAppService.CreateAsync(vm, cancellationToken);
+        var result = await handler.HandleAsync(vm, cancellationToken);
         return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
     }
 
@@ -34,9 +35,12 @@ public class SuporteOrganizationsController(IOrganizationAppService organization
     /// Returns a specific organization by ID.
     /// </summary>
     [HttpGet("{id:guid}")]
-    public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetById(
+        Guid id,
+        [FromServices] GetOrganizationByIdQuery query,
+        CancellationToken cancellationToken)
     {
-        var result = await organizationAppService.GetByIdAsync(id, cancellationToken);
+        var result = await query.HandleAsync(id, cancellationToken);
         return result is null ? NotFound() : Ok(result);
     }
 
@@ -44,9 +48,11 @@ public class SuporteOrganizationsController(IOrganizationAppService organization
     /// Returns all registered organizations.
     /// </summary>
     [HttpGet]
-    public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetAll(
+        [FromServices] GetAllOrganizationsQuery query,
+        CancellationToken cancellationToken)
     {
-        var result = await organizationAppService.GetAllAsync(cancellationToken);
+        var result = await query.HandleAsync(cancellationToken);
         return Ok(result);
     }
 }

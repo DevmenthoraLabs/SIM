@@ -1,17 +1,13 @@
-namespace SIM.WebApi.Auth;
+namespace SIM.Domain.Constants;
 
 /// <summary>
-/// Role constants for use in [Authorize(Roles = ...)] attributes.
-/// Values must match exactly the UserRole enum names.
+/// Role constants for authorization. Values must match the UserRole enum names exactly.
+/// Used in [Authorize(Roles = ...)] attributes and policy definitions.
 /// </summary>
 public static class Roles
 {
-    /// <summary>SIM internal support team. Always belongs to the SimSuporte organization.</summary>
     public const string SuperAdmin        = "SuperAdmin";
-
-    /// <summary>Organization-level administrator. Manages users within their own org.</summary>
     public const string Admin             = "Admin";
-
     public const string Pharmacist        = "Pharmacist";
     public const string StockManager      = "StockManager";
     public const string ReceivingOperator = "ReceivingOperator";

@@ -46,6 +46,8 @@ public class UserProfile : IOrganizationScoped
         if (organizationId == Guid.Empty)
             throw new DomainValidationException(ValidationMessages.OrganizationRequired);
 
+        EnforceSuperAdminOrgInvariant(role, organizationId);
+
         return new UserProfile
         {
             Id = supabaseUserId,
@@ -61,8 +63,20 @@ public class UserProfile : IOrganizationScoped
 
     public void UpdateRole(UserRole newRole)
     {
+        EnforceSuperAdminOrgInvariant(newRole, OrganizationId);
+
         Role = newRole;
         UpdatedAt = DateTime.UtcNow;
+    }
+
+    /// <summary>
+    /// Domain invariant: SuperAdmin users must belong to the SimSuporte organization.
+    /// Enforced at creation and on every role change — no handler can bypass this.
+    /// </summary>
+    private static void EnforceSuperAdminOrgInvariant(UserRole role, Guid organizationId)
+    {
+        if (role == UserRole.SuperAdmin && organizationId != SystemOrganizations.SimSuporte)
+            throw new DomainValidationException(ValidationMessages.SuperAdminMustBelongToSimSuporte);
     }
 
     public void Deactivate()

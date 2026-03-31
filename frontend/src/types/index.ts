@@ -14,3 +14,9 @@ export interface InviteUserRequest {
   organizationId: string
   unitId?: string
 }
+
+export interface CreateOrganizationRequest {
+  name: string
+  cnpj: string
+  type: 'Public' | 'Private'
+}

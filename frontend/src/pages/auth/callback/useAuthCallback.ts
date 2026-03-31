@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { api } from '@/lib/api'
+import { extractErrorMessage } from '@/lib/api'
+import { authService } from '@/services/authService'
 import { tokenStorage } from '@/lib/tokenStorage'
 import { extractRoleFromToken, extractEmailFromToken, extractOrganizationIdFromToken } from '@/lib/jwtDecode'
 import { useAuthStore } from '@/store/authStore'
@@ -68,10 +69,10 @@ export function useAuthCallback() {
     try {
       setServerError(null)
       // User is now authenticated — the api instance sends the Bearer token automatically.
-      await api.post('/api/auth/set-password', { password: values.password })
+      await authService.setPassword(values.password)
       navigate('/', { replace: true })
-    } catch {
-      setServerError('Não foi possível definir a senha. O link pode ter expirado.')
+    } catch (error) {
+      setServerError(extractErrorMessage(error, 'Não foi possível definir a senha. O link pode ter expirado.'))
     }
   }
 

@@ -12,6 +12,13 @@ if (!apiUrl) {
 // Separate instance used only for token refresh to avoid circular interceptor calls
 const authClient = axios.create({ baseURL: apiUrl })
 
+export function extractErrorMessage(error: unknown, fallback: string): string {
+  if (axios.isAxiosError(error) && error.response?.data?.detail) {
+    return error.response.data.detail
+  }
+  return fallback
+}
+
 export const api = axios.create({
   baseURL: apiUrl,
   headers: { 'Content-Type': 'application/json' },
