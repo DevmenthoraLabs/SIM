@@ -1,4 +1,3 @@
-import { extractErrorMessage } from '../lib/api'
 import { authService } from '../services/authService'
 import { extractRoleFromToken, extractOrganizationIdFromToken } from '../lib/jwtDecode'
 import { tokenStorage } from '../lib/tokenStorage'
