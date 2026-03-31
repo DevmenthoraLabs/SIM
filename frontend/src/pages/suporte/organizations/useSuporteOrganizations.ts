@@ -23,7 +23,7 @@ export function useSuporteOrganizations() {
 
   const { data: organizations = [], isLoading } = useQuery({
     queryKey: queryKeys.organizations,
-    queryFn: () => organizationService.getAll().then((r) => r.data),
+    queryFn: () => organizationService.getAll(),
   })
 
   const form = useForm<CreateOrgFormValues>({
@@ -41,7 +41,12 @@ export function useSuporteOrganizations() {
       toast.success('Organização criada com sucesso.')
     },
     onError: (error) => {
-      setServerError(extractErrorMessage(error, 'Erro ao criar organização. Verifique os dados e tente novamente.'))
+      setServerError(
+        extractErrorMessage(
+          error,
+          'Erro ao criar organização. Verifique os dados e tente novamente.'
+        )
+      )
     },
   })
 

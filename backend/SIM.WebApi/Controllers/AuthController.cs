@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using SIM.Application.Abstractions.Services;
 using SIM.Application.Features.Auth;
 using SIM.Application.ViewModels.Auth;
+using SIM.WebApi.Configuration;
 
 namespace SIM.WebApi.Controllers;
 
@@ -16,6 +18,7 @@ public class AuthController : ControllerBase
     /// </summary>
     [HttpPost("login")]
     [AllowAnonymous]
+    [EnableRateLimiting(RateLimitingExtensions.AuthPolicy)]
     public async Task<IActionResult> Login(
         [FromBody] LoginViewModel vm,
         [FromServices] IAuthService authService,
@@ -31,6 +34,7 @@ public class AuthController : ControllerBase
     /// </summary>
     [HttpPost("refresh")]
     [AllowAnonymous]
+    [EnableRateLimiting(RateLimitingExtensions.AuthPolicy)]
     public async Task<IActionResult> Refresh(
         [FromBody] RefreshViewModel vm,
         [FromServices] IAuthService authService,
