@@ -3,20 +3,13 @@ namespace SIM.Domain.Abstractions;
 public abstract class BaseEntity
 {
     public Guid Id { get; protected set; }
-    public DateTime CreatedAt { get; protected set; }
-    public DateTime? UpdatedAt { get; protected set; }
-    public bool IsActive { get; protected set; }
 
-    protected BaseEntity()
-    {
-        Id = Guid.NewGuid();
-        CreatedAt = DateTime.UtcNow;
-        IsActive = true;
-    }   
+    private readonly List<IDomainEvent> _domainEvents = [];
+    public IReadOnlyList<IDomainEvent> DomainEvents => _domainEvents.AsReadOnly();
 
-    public void Deactivate()
-    {
-        IsActive = false;
-        UpdatedAt = DateTime.UtcNow;
-    }
+    protected void RaiseDomainEvent(IDomainEvent domainEvent)
+        => _domainEvents.Add(domainEvent);
+
+    public void ClearDomainEvents()
+        => _domainEvents.Clear();
 }

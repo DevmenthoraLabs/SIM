@@ -1,5 +1,6 @@
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
+using SIM.Domain.Abstractions;
 
 namespace SIM.Application.Configuration;
 
@@ -23,6 +24,13 @@ public static class DependencyInjection
             .FromAssemblies(assembly)
             .AddClasses(x => x.Where(type => type.Name.EndsWith("Query")))
             .AsSelf()
+            .WithScopedLifetime());
+
+        // Domain Event Handlers — auto-registered via IDomainEventHandler<T>
+        services.Scan(scan => scan
+            .FromAssemblies(assembly)
+            .AddClasses(x => x.AssignableTo(typeof(IDomainEventHandler<>)))
+            .AsImplementedInterfaces()
             .WithScopedLifetime());
 
         return services;
