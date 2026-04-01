@@ -1,5 +1,6 @@
 using Dapper;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using SIM.Application.Abstractions;
 using SIM.Domain.Abstractions;
 using SIM.Domain.Entities;
@@ -9,7 +10,8 @@ namespace SIM.Infrastructure.Data;
 
 public class ApplicationDbContext(
     DbContextOptions<ApplicationDbContext> options,
-    ICurrentUserService currentUserService) : DbContext(options), IUnitOfWork
+    ICurrentUserService currentUserService,
+    IServiceProvider serviceProvider) : DbContext(options), IUnitOfWork
 {
     public DbSet<Organization> Organizations => Set<Organization>();
     public DbSet<UserProfile> UserProfiles => Set<UserProfile>();
@@ -68,7 +70,36 @@ public class ApplicationDbContext(
         if (!currentUserService.IsSuperAdmin)
             EnforceOrganizationScope();
 
-        return await base.SaveChangesAsync(cancellationToken);
+        var events = ChangeTracker.Entries<BaseEntity>()
+            .SelectMany(e => e.Entity.DomainEvents)
+            .ToList();
+
+        ChangeTracker.Entries<BaseEntity>()
+            .ToList()
+            .ForEach(e => e.Entity.ClearDomainEvents());
+
+        var result = await base.SaveChangesAsync(cancellationToken);
+
+        await DispatchDomainEventsAsync(events, cancellationToken);
+
+        return result;
+    }
+
+    private async Task DispatchDomainEventsAsync(
+        List<IDomainEvent> events,
+        CancellationToken cancellationToken)
+    {
+        foreach (var domainEvent in events)
+        {
+            var handlerType = typeof(IDomainEventHandler<>).MakeGenericType(domainEvent.GetType());
+            var handlers = serviceProvider.GetServices(handlerType);
+
+            foreach (var handler in handlers)
+            {
+                var method = handlerType.GetMethod(nameof(IDomainEventHandler<IDomainEvent>.HandleAsync))!;
+                await (Task)method.Invoke(handler, [domainEvent, cancellationToken])!;
+            }
+        }
     }
 
     /// <remarks>

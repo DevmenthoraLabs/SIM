@@ -4,7 +4,7 @@ using SIM.Domain.Exceptions;
 
 namespace SIM.Domain.Entities;
 
-public class Product : BaseEntity, IOrganizationScoped
+public class Product : LifeCycleEntity, IOrganizationScoped
 {
     public string Name { get; private set; } = string.Empty;
     public string Description { get; private set; } = string.Empty;
