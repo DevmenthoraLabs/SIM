@@ -38,6 +38,23 @@ public static class ValidationMessages
     public const string OrganizationAccessDenied   = "You can only manage users within your own organization.";
     public const string SuperAdminMustBelongToSimSuporte = "SuperAdmin users must belong to the SimSuporte organization.";
 
+    // Unit
+    public const string UnitNameRequired = "Unit name is required.";
+    public const string UnitNameTooLong = "Unit name must not exceed 200 characters.";
+    public const string UnitCodeRequired = "Unit code is required.";
+    public const string UnitCodeTooLong = "Unit code must not exceed 20 characters.";
+    public const string UnitCodeAlreadyExists = "A unit with this code already exists in the organization.";
+    public const string UnitPhoneTooLong = "Phone must not exceed 20 characters.";
+    public const string UnitNotFound = "Unit not found.";
+    public const string UnitNotFoundOrInactive = "One or more units were not found or are inactive.";
+    public const string UnitIdRequired = "Unit ID is required.";
+
+    // UserUnit
+    public const string UserUnitAlreadyActive = "This user is already assigned to the unit.";
+    public const string UserUnitNotFound = "User is not assigned to this unit.";
+    public const string CannotRemoveLastUnitAssignment = "Cannot remove the user's last active unit assignment.";
+    public const string SuperAdminCannotBeAssignedToUnit = "SuperAdmin users cannot be assigned to a unit.";
+
     // Product
     public const string ProductNameRequired = "Product name is required.";
     public const string ProductNameTooLong = "Product name must not exceed 200 characters.";

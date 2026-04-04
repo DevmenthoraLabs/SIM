@@ -11,4 +11,10 @@ public static class SimClaimTypes
     /// The organization the authenticated user belongs to (Guid string).
     /// </summary>
     public const string OrganizationId = "sim:organization_id";
+
+    /// <summary>
+    /// Comma-separated list of UnitIds the user has active access to.
+    /// Empty for Admin and SuperAdmin (cross-unit access is implicit for those roles).
+    /// </summary>
+    public const string UnitIds = "sim:unit_ids";
 }
