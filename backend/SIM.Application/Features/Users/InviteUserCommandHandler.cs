@@ -48,13 +48,13 @@ public class InviteUserCommandHandler(
 
         var userId = await identityAdminService.InviteUserAsync(vm.Email, cancellationToken);
 
-        var userProfile = UserProfile.Create(userId, vm.FullName, vm.Email, vm.Role, vm.OrganizationId, vm.UnitId);
+        var userProfile = UserProfile.Create(userId, vm.FullName, vm.Email, vm.Role, vm.OrganizationId);
 
         unitOfWork.UserProfiles.Add(userProfile);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return new UserViewModel(
             userProfile.Id, userProfile.FullName, userProfile.Email, userProfile.Role,
-            userProfile.OrganizationId, userProfile.UnitId, userProfile.CreatedAt, userProfile.IsActive);
+            userProfile.OrganizationId, [], userProfile.CreatedAt, userProfile.IsActive);
     }
 }

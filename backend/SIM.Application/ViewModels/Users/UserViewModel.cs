@@ -8,6 +8,6 @@ public record UserViewModel(
     string Email,
     UserRole Role,
     Guid OrganizationId,
-    Guid? UnitId,
+    IReadOnlyList<Guid> UnitIds,
     DateTime CreatedAt,
     bool IsActive);

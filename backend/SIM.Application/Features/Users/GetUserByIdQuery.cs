@@ -14,7 +14,7 @@ public class GetUserByIdQuery(IUnitOfWork unitOfWork)
             .Where(u => u.Id == id)
             .Select(u => new UserViewModel(
                 u.Id, u.FullName, u.Email, u.Role,
-                u.OrganizationId, u.UnitId, u.CreatedAt, u.IsActive))
+                u.OrganizationId, new List<Guid>(), u.CreatedAt, u.IsActive))
             .FirstOrDefaultAsync(cancellationToken);
     }
 }

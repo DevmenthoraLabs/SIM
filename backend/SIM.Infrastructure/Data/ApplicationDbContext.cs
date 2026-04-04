@@ -15,6 +15,8 @@ public class ApplicationDbContext(
 {
     public DbSet<Organization> Organizations => Set<Organization>();
     public DbSet<UserProfile> UserProfiles => Set<UserProfile>();
+    public DbSet<Unit> Units => Set<Unit>();
+    public DbSet<UserUnit> UserUnits => Set<UserUnit>();
     public DbSet<Product> Products => Set<Product>();
     public DbSet<MedicationDetails> MedicationDetails => Set<MedicationDetails>();
 
