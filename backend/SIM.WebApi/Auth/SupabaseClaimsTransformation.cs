@@ -45,11 +45,11 @@ public class SupabaseClaimsTransformation(IUnitOfWork unitOfWork) : IClaimsTrans
             if (Guid.TryParse(userId, out var userGuid) && Guid.TryParse(orgId, out var orgGuid))
             {
                 const string sql = """
-                    SELECT unit_id
+                    SELECT UnitId
                     FROM user_units
-                    WHERE user_id = @UserId
-                      AND is_active = true
-                      AND organization_id = @OrganizationId
+                    WHERE UserId = @UserId
+                      AND IsActive = true
+                      AND OrganizationId = @OrganizationId
                     """;
 
                 var unitIds = await unitOfWork.QueryAsync<Guid>(sql, new { UserId = userGuid, OrganizationId = orgGuid });

@@ -23,7 +23,7 @@ public class UserUnitConfiguration : IEntityTypeConfiguration<UserUnit>
         // Historical inactive records are kept for audit trail
         builder.HasIndex(x => new { x.UserId, x.UnitId })
             .IsUnique()
-            .HasFilter("is_active = true");
+            .HasFilter("user_units.IsActive = true");
 
         builder.HasOne(x => x.User)
             .WithMany()

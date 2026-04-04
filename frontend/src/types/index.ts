@@ -23,16 +23,56 @@ export const OrganizationResponseSchema = z.object({
 
 export type OrganizationResponse = z.infer<typeof OrganizationResponseSchema>
 
+export interface CreateOrganizationRequest {
+  name: string
+  cnpj: string
+  type: 'Public' | 'Private'
+}
+
+// ── User ─────────────────────────────────────────────────────────────────────
+
+export interface UserResponse {
+  id: string
+  fullName: string
+  email: string
+  role: string
+  organizationId: string
+  unitIds: string[]
+  createdAt: string
+  isActive: boolean
+}
+
 export interface InviteUserRequest {
   email: string
   fullName: string
   role: string
   organizationId: string
-  unitId?: string
+  unitIds?: string[]
 }
 
-export interface CreateOrganizationRequest {
+// ── Unit ─────────────────────────────────────────────────────────────────────
+
+export interface UnitResponse {
+  id: string
   name: string
-  cnpj: string
-  type: 'Public' | 'Private'
+  code: string
+  address: string | null
+  phone: string | null
+  organizationId: string
+  createdAt: string
+  isActive: boolean
+}
+
+export interface CreateUnitRequest {
+  name: string
+  code: string
+  address?: string
+  phone?: string
+}
+
+export interface UpdateUnitRequest {
+  name: string
+  code: string
+  address?: string
+  phone?: string
 }

@@ -163,7 +163,7 @@ namespace SIM.Infrastructure.Data.Migrations
                 table: "user_units",
                 columns: new[] { "UserId", "UnitId" },
                 unique: true,
-                filter: "is_active = true");
+                filter: "\"IsActive\" = true"); 
         }
 
         /// <inheritdoc />
