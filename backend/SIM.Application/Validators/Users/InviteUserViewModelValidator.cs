@@ -1,6 +1,7 @@
 using FluentValidation;
 using SIM.Application.ViewModels.Users;
 using SIM.Domain.Constants;
+using SIM.Domain.Enums;
 
 namespace SIM.Application.Validators.Users;
 
@@ -21,5 +22,10 @@ public class InviteUserViewModelValidator : AbstractValidator<InviteUserViewMode
 
         RuleFor(x => x.OrganizationId)
             .NotEmpty().WithMessage(ValidationMessages.OrganizationRequired);
+
+        RuleFor(x => x.UnitIds)
+            .NotEmpty()
+            .When(x => x.Role is UserRole.Pharmacist or UserRole.StockManager or UserRole.ReceivingOperator)
+            .WithMessage(ValidationMessages.UnitRequiredForRole);
     }
 }
