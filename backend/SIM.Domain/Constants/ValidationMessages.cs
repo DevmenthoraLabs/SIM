@@ -47,6 +47,7 @@ public static class ValidationMessages
     public const string UnitPhoneTooLong = "Phone must not exceed 20 characters.";
     public const string UnitNotFound = "Unit not found.";
     public const string UnitNotFoundOrInactive = "One or more units were not found or are inactive.";
+    public const string UnitRequiredForRole = "At least one unit must be assigned for this role.";
     public const string UnitIdRequired = "Unit ID is required.";
 
     // UserUnit
