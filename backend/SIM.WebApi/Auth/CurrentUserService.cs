@@ -35,4 +35,31 @@ public class CurrentUserService(IHttpContextAccessor httpContextAccessor) : ICur
     /// <inheritdoc/>
     public bool IsSuperAdmin =>
         httpContextAccessor.HttpContext?.User.IsInRole(Roles.SuperAdmin) ?? false;
+
+    /// <inheritdoc/>
+    public bool IsAdmin =>
+        httpContextAccessor.HttpContext?.User.IsInRole(Roles.Admin) ?? false;
+
+    /// <inheritdoc/>
+    public IReadOnlyList<Guid> UnitIds
+    {
+        get
+        {
+            var value = httpContextAccessor.HttpContext?.User
+                .FindFirstValue(SimClaimTypes.UnitIds);
+
+            if (string.IsNullOrEmpty(value)) return [];
+
+            return value.Split(',')
+                .Select(s => Guid.TryParse(s, out var id) ? id : (Guid?)null)
+                .Where(id => id.HasValue)
+                .Select(id => id!.Value)
+                .ToList()
+                .AsReadOnly();
+        }
+    }
+
+    /// <inheritdoc/>
+    public bool HasAccessToUnit(Guid unitId) =>
+        IsSuperAdmin || IsAdmin || UnitIds.Contains(unitId);
 }

@@ -17,4 +17,22 @@ public interface ICurrentUserService
     /// SuperAdmin users are internal (SIM support team) and have no organization scope.
     /// </summary>
     bool IsSuperAdmin { get; }
+
+    /// <summary>
+    /// True when the authenticated user has the Admin role (not SuperAdmin).
+    /// Admin users have cross-unit access within their organization.
+    /// </summary>
+    bool IsAdmin { get; }
+
+    /// <summary>
+    /// Active unit assignments loaded from user_units via claims transformation.
+    /// Empty for Admin and SuperAdmin (cross-unit access is implicit for those roles).
+    /// </summary>
+    IReadOnlyList<Guid> UnitIds { get; }
+
+    /// <summary>
+    /// Returns true if the user has access to the given unit.
+    /// SuperAdmin and Admin always return true. Operational roles require an active UserUnit.
+    /// </summary>
+    bool HasAccessToUnit(Guid unitId);
 }
