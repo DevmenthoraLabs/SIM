@@ -43,4 +43,6 @@ public static class ValidationMessages
     public const string ProductNameTooLong = "Product name must not exceed 200 characters.";
     public const string ProductNotFound = "Product not found.";
     public const string ProductDescriptionTooLong = "Product description must not exceed 1000 characters.";
+    public const string ProductBarCodeTooLong = "Bar code must not exceed 50 characters.";
+    public const string ProductTypeInvalid = "Type must be a valid ProductType.";
 }

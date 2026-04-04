@@ -8,6 +8,7 @@ public interface IUnitOfWork
     DbSet<Organization> Organizations { get; }
     DbSet<UserProfile> UserProfiles { get; }
     DbSet<Product> Products { get; }
+    DbSet<MedicationDetails> MedicationDetails { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 
