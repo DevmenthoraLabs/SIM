@@ -256,7 +256,7 @@ namespace SIM.Infrastructure.Migrations
 
                     b.HasIndex("UserId", "UnitId")
                         .IsUnique()
-                        .HasFilter("is_active = true");
+                        .HasFilter("user_units.IsActive = true");
 
                     b.ToTable("user_units", (string)null);
                 });

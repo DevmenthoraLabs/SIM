@@ -16,6 +16,8 @@ const ROLE_LABELS: Record<string, string> = {
 export default function InviteUserPage() {
   const {
     organizations,
+    units,
+    isOperationalRole,
     serverError,
     success,
     form,
@@ -23,6 +25,17 @@ export default function InviteUserPage() {
     isSubmitting,
     goBack,
   } = useInviteUser()
+
+  const selectedUnitIds: string[] = form.watch('unitIds') ?? []
+
+  function toggleUnit(unitId: string) {
+    const current = form.getValues('unitIds') ?? []
+    form.setValue(
+      'unitIds',
+      current.includes(unitId) ? current.filter((id) => id !== unitId) : [...current, unitId],
+      { shouldValidate: true }
+    )
+  }
 
   return (
     <div className="mx-auto max-w-lg px-4 py-8 space-y-6">
@@ -116,6 +129,44 @@ export default function InviteUserPage() {
                     </FormItem>
                   )}
                 />
+
+                {isOperationalRole && (
+                  <FormField
+                    control={form.control}
+                    name="unitIds"
+                    render={() => (
+                      <FormItem>
+                        <FormLabel>Unidades</FormLabel>
+                        {units.length === 0 ? (
+                          <p className="text-sm text-muted-foreground">
+                            {form.watch('organizationId')
+                              ? 'Nenhuma unidade ativa encontrada para esta organização.'
+                              : 'Selecione uma organização para ver as unidades disponíveis.'}
+                          </p>
+                        ) : (
+                          <div className="flex flex-col gap-2">
+                            {units.filter((u) => u.isActive).map((unit) => (
+                              <label
+                                key={unit.id}
+                                className="flex items-center gap-2 cursor-pointer text-sm"
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={selectedUnitIds.includes(unit.id)}
+                                  onChange={() => toggleUnit(unit.id)}
+                                  className="accent-primary"
+                                />
+                                <span>{unit.name}</span>
+                                <span className="text-muted-foreground text-xs">({unit.code})</span>
+                              </label>
+                            ))}
+                          </div>
+                        )}
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
 
                 {serverError && (
                   <p className="text-sm text-destructive">{serverError}</p>

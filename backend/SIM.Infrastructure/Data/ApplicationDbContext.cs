@@ -25,6 +25,14 @@ public class ApplicationDbContext(
         base.OnModelCreating(modelBuilder);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
         ApplyOrganizationScopedFilters(modelBuilder);
+
+        // MedicationDetails is a satellite of Product (ProductId as PK, internal factory).
+        // It doesn't carry OrganizationId directly, so the global filter is applied
+        // via the Product navigation to match Product's own org scope filter.
+        modelBuilder.Entity<MedicationDetails>()
+            .HasQueryFilter(md =>
+                currentUserService.IsSuperAdmin ||
+                md.Product!.OrganizationId == currentUserService.OrganizationId);
     }
 
     /// <summary>

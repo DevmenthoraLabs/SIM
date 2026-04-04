@@ -8,16 +8,33 @@ import { z } from 'zod'
 import { extractErrorMessage } from '@/lib/api'
 import { queryKeys } from '@/lib/queryKeys'
 import { organizationService } from '@/services/organizationService'
+import { unitService } from '@/services/unitService'
 import { userService } from '@/services/userService'
 
-const inviteSchema = z.object({
-  email: z.string().email('Email inválido.'),
-  fullName: z.string().min(1, 'Nome completo é obrigatório.').max(200, 'Nome muito longo.'),
-  role: z.enum(['SuperAdmin', 'Admin', 'Pharmacist', 'StockManager', 'ReceivingOperator'], {
-    error: 'Perfil é obrigatório.',
-  }),
-  organizationId: z.string().min(1, 'Selecione uma organização.'),
-})
+const OPERATIONAL_ROLES = ['Pharmacist', 'StockManager', 'ReceivingOperator'] as const
+
+const inviteSchema = z
+  .object({
+    email: z.string().email('Email inválido.'),
+    fullName: z.string().min(1, 'Nome completo é obrigatório.').max(200, 'Nome muito longo.'),
+    role: z.enum(['SuperAdmin', 'Admin', 'Pharmacist', 'StockManager', 'ReceivingOperator'], {
+      error: 'Perfil é obrigatório.',
+    }),
+    organizationId: z.string().min(1, 'Selecione uma organização.'),
+    unitIds: z.array(z.string()).optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (
+      OPERATIONAL_ROLES.includes(data.role as (typeof OPERATIONAL_ROLES)[number]) &&
+      (!data.unitIds || data.unitIds.length === 0)
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['unitIds'],
+        message: 'Selecione ao menos uma unidade para este perfil.',
+      })
+    }
+  })
 
 type InviteFormValues = z.infer<typeof inviteSchema>
 
@@ -33,11 +50,28 @@ export function useInviteUser() {
 
   const form = useForm<InviteFormValues>({
     resolver: zodResolver(inviteSchema),
-    defaultValues: { email: '', fullName: '', role: 'Admin', organizationId: '' },
+    defaultValues: { email: '', fullName: '', role: 'Admin', organizationId: '', unitIds: [] },
+  })
+
+  const selectedOrganizationId = form.watch('organizationId')
+  const selectedRole = form.watch('role')
+  const isOperationalRole = OPERATIONAL_ROLES.includes(selectedRole as (typeof OPERATIONAL_ROLES)[number])
+
+  const { data: units = [] } = useQuery({
+    queryKey: queryKeys.units,
+    queryFn: () => unitService.getAll(),
+    enabled: isOperationalRole && !!selectedOrganizationId,
   })
 
   const inviteMutation = useMutation({
-    mutationFn: userService.invite,
+    mutationFn: (values: InviteFormValues) =>
+      userService.invite({
+        email: values.email,
+        fullName: values.fullName,
+        role: values.role,
+        organizationId: values.organizationId,
+        unitIds: values.unitIds?.length ? values.unitIds : undefined,
+      }),
     onSuccess: () => {
       setSuccess(true)
       setServerError(null)
@@ -58,6 +92,8 @@ export function useInviteUser() {
 
   return {
     organizations,
+    units,
+    isOperationalRole,
     serverError,
     success,
     form,
