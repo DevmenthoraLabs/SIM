@@ -14,6 +14,8 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IE
     {
         var (statusCode, title) = exception switch
         {
+            NotFoundException        => (StatusCodes.Status404NotFound,              "Not Found"),
+            ConflictException        => (StatusCodes.Status409Conflict,              "Conflict"),
             BusinessLogicException   => (StatusCodes.Status400BadRequest,            "Bad Request"),
             DomainValidationException => (StatusCodes.Status422UnprocessableEntity,  "Validation Error"),
             _                        => (StatusCodes.Status500InternalServerError,   "Internal Server Error")
