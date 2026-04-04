@@ -20,13 +20,17 @@ public class CreateProductCommandHandler(
         if (!validation.IsValid)
             throw new BusinessLogicException(string.Join(" ", validation.Errors.Select(e => e.ErrorMessage)));
 
-        var product = Product.Create(vm.Name, vm.Description, currentUserService.OrganizationId!.Value);
+        var product = Product.CreateGeneric(
+            vm.Name,
+            vm.Description,
+            vm.BarCode,
+            vm.RequiresBatchTracking,
+            vm.CategoryId,
+            currentUserService.OrganizationId!.Value);
 
         unitOfWork.Products.Add(product);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return new ProductViewModel(
-            product.Id, product.Name, product.Description,
-            product.CreatedAt, product.IsActive);
+        return ProductViewModel.From(product);
     }
 }

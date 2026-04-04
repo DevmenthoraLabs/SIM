@@ -10,8 +10,7 @@ public class GetAllProductsQuery(IUnitOfWork unitOfWork)
         CancellationToken cancellationToken = default)
     {
         return await unitOfWork.Products
-            .Select(p => new ProductViewModel(
-                p.Id, p.Name, p.Description, p.CreatedAt, p.IsActive))
+            .Select(ProductViewModel.FromEntity)
             .ToListAsync(cancellationToken);
     }
 }

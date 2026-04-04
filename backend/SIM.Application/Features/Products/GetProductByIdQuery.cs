@@ -12,8 +12,7 @@ public class GetProductByIdQuery(IUnitOfWork unitOfWork)
     {
         return await unitOfWork.Products
             .Where(p => p.Id == id)
-            .Select(p => new ProductViewModel(
-                p.Id, p.Name, p.Description, p.CreatedAt, p.IsActive))
+            .Select(ProductViewModel.FromEntity)
             .FirstOrDefaultAsync(cancellationToken);
     }
 }
