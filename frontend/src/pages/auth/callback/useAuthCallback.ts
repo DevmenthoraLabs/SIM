@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { extractErrorMessage } from '@/lib/api'
+import { messages } from '@/lib/messages'
 import { authService } from '@/services/authService'
 import { tokenStorage } from '@/lib/tokenStorage'
 import {
@@ -15,11 +16,11 @@ import { useAuthStore } from '@/store/authStore'
 
 const schema = z
   .object({
-    password: z.string().min(8, 'Senha deve ter pelo menos 8 caracteres.'),
-    confirmPassword: z.string().min(1, 'Confirmação é obrigatória.'),
+    password: z.string().min(8, messages.validation.passwordTooShort),
+    confirmPassword: z.string().min(1, messages.validation.passwordConfirmRequired),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: 'As senhas não coincidem.',
+    message: messages.validation.passwordMismatch,
     path: ['confirmPassword'],
   })
 
@@ -88,7 +89,7 @@ export function useAuthCallback() {
       navigate('/', { replace: true })
     } catch (error) {
       setServerError(
-        extractErrorMessage(error, 'Não foi possível definir a senha. O link pode ter expirado.')
+        extractErrorMessage(error, messages.auth.setPasswordError)
       )
     }
   }

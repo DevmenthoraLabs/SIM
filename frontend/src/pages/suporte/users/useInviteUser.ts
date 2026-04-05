@@ -6,32 +6,33 @@ import { useQuery, useMutation } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { z } from 'zod'
 import { extractErrorMessage } from '@/lib/api'
+import { ROLES, OPERATIONAL_ROLES } from '@/lib/constants'
+import { messages } from '@/lib/messages'
 import { queryKeys } from '@/lib/queryKeys'
 import { organizationService } from '@/services/organizationService'
 import { unitService } from '@/services/unitService'
 import { userService } from '@/services/userService'
 
-const OPERATIONAL_ROLES = ['Pharmacist', 'StockManager', 'ReceivingOperator'] as const
-
 const inviteSchema = z
   .object({
-    email: z.string().email('Email inválido.'),
-    fullName: z.string().min(1, 'Nome completo é obrigatório.').max(200, 'Nome muito longo.'),
-    role: z.enum(['SuperAdmin', 'Admin', 'Pharmacist', 'StockManager', 'ReceivingOperator'], {
-      error: 'Perfil é obrigatório.',
-    }),
-    organizationId: z.string().min(1, 'Selecione uma organização.'),
+    email: z.string().email(messages.validation.emailInvalid),
+    fullName: z.string().min(1, messages.validation.nameRequired).max(200, messages.validation.nameTooLong),
+    role: z.enum(
+      [ROLES.SuperAdmin, ROLES.Admin, ROLES.Pharmacist, ROLES.StockManager, ROLES.ReceivingOperator],
+      { error: messages.validation.roleRequired }
+    ),
+    organizationId: z.string().min(1, messages.validation.orgRequired),
     unitIds: z.array(z.string()).optional(),
   })
   .superRefine((data, ctx) => {
     if (
-      OPERATIONAL_ROLES.includes(data.role as (typeof OPERATIONAL_ROLES)[number]) &&
+      OPERATIONAL_ROLES.includes(data.role as typeof OPERATIONAL_ROLES[number]) &&
       (!data.unitIds || data.unitIds.length === 0)
     ) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['unitIds'],
-        message: 'Selecione ao menos uma unidade para este perfil.',
+        message: messages.validation.unitRequired,
       })
     }
   })
@@ -50,12 +51,12 @@ export function useInviteUser() {
 
   const form = useForm<InviteFormValues>({
     resolver: zodResolver(inviteSchema),
-    defaultValues: { email: '', fullName: '', role: 'Admin', organizationId: '', unitIds: [] },
+    defaultValues: { email: '', fullName: '', role: ROLES.Admin, organizationId: '', unitIds: [] },
   })
 
   const selectedOrganizationId = form.watch('organizationId')
   const selectedRole = form.watch('role')
-  const isOperationalRole = OPERATIONAL_ROLES.includes(selectedRole as (typeof OPERATIONAL_ROLES)[number])
+  const isOperationalRole = OPERATIONAL_ROLES.includes(selectedRole as typeof OPERATIONAL_ROLES[number])
 
   const { data: units = [] } = useQuery({
     queryKey: queryKeys.units,
@@ -76,12 +77,10 @@ export function useInviteUser() {
       setSuccess(true)
       setServerError(null)
       form.reset()
-      toast.success('Convite enviado com sucesso.')
+      toast.success(messages.users.inviteSuccess)
     },
     onError: (error) => {
-      setServerError(
-        extractErrorMessage(error, 'Erro ao enviar convite. Verifique os dados e tente novamente.')
-      )
+      setServerError(extractErrorMessage(error, messages.users.inviteError))
     },
   })
 

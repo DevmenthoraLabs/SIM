@@ -1,17 +1,16 @@
+import { Link } from 'react-router'
+import { Check } from 'lucide-react'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
+import PageContainer from '@/components/layout/PageContainer'
+import PageHeader from '@/components/layout/PageHeader'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { UnitCheckList } from '@/components/ui/UnitCheckList'
+import { ROLES, ROLE_LABELS } from '@/lib/constants'
+import { messages } from '@/lib/messages'
 import { useInviteUser } from './useInviteUser'
-
-const ROLE_LABELS: Record<string, string> = {
-  SuperAdmin: 'Super Admin',
-  Admin: 'Admin',
-  Pharmacist: 'Farmacêutico',
-  StockManager: 'Gestor de Estoque',
-  ReceivingOperator: 'Operador de Recebimento',
-}
 
 export default function InviteUserPage() {
   const {
@@ -23,7 +22,6 @@ export default function InviteUserPage() {
     form,
     onSubmit,
     isSubmitting,
-    goBack,
   } = useInviteUser()
 
   const selectedUnitIds: string[] = form.watch('unitIds') ?? []
@@ -38,23 +36,21 @@ export default function InviteUserPage() {
   }
 
   return (
-    <div className="mx-auto max-w-lg px-4 py-8 space-y-6">
-      <div className="flex items-center gap-3">
-        <Button variant="ghost" size="sm" onClick={goBack}>← Voltar</Button>
-        <h1 className="text-xl font-semibold">Convidar usuário</h1>
-      </div>
+    <PageContainer narrow>
+      <PageHeader title={messages.pages.inviteUserTitle} />
 
       <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Dados do convite</CardTitle>
-        </CardHeader>
-        <CardContent>
+        <CardContent className="pt-6">
           {success ? (
-            <div className="space-y-4">
-              <p className="text-sm text-green-600 font-medium">
-                Convite enviado com sucesso! O usuário receberá um email para definir sua senha.
-              </p>
-              <Button variant="outline" onClick={goBack}>Voltar para organizações</Button>
+            <div className="flex flex-col items-center py-4 text-center">
+              <div className="rounded-full bg-green-50 dark:bg-green-500/10 p-3 mb-3">
+                <Check className="h-6 w-6 text-green-600 dark:text-green-400" />
+              </div>
+              <p className="text-sm font-medium">{messages.users.inviteSuccess}</p>
+              <p className="text-sm text-muted-foreground mt-1">{messages.users.inviteSuccessHint}</p>
+              <Button variant="outline" asChild className="mt-4">
+                <Link to="/suporte/organizations">{messages.pages.organizationsTitle}</Link>
+              </Button>
             </div>
           ) : (
             <Form {...form}>
@@ -120,8 +116,8 @@ export default function InviteUserPage() {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {Object.entries(ROLE_LABELS).map(([value, label]) => (
-                            <SelectItem key={value} value={value}>{label}</SelectItem>
+                          {(Object.keys(ROLES) as Array<keyof typeof ROLES>).map((key) => (
+                            <SelectItem key={key} value={ROLES[key]}>{ROLE_LABELS[ROLES[key]]}</SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
@@ -140,27 +136,15 @@ export default function InviteUserPage() {
                         {units.length === 0 ? (
                           <p className="text-sm text-muted-foreground">
                             {form.watch('organizationId')
-                              ? 'Nenhuma unidade ativa encontrada para esta organização.'
-                              : 'Selecione uma organização para ver as unidades disponíveis.'}
+                              ? messages.users.noUnitsForOrg
+                              : messages.users.selectOrgFirst}
                           </p>
                         ) : (
-                          <div className="flex flex-col gap-2">
-                            {units.filter((u) => u.isActive).map((unit) => (
-                              <label
-                                key={unit.id}
-                                className="flex items-center gap-2 cursor-pointer text-sm"
-                              >
-                                <input
-                                  type="checkbox"
-                                  checked={selectedUnitIds.includes(unit.id)}
-                                  onChange={() => toggleUnit(unit.id)}
-                                  className="accent-primary"
-                                />
-                                <span>{unit.name}</span>
-                                <span className="text-muted-foreground text-xs">({unit.code})</span>
-                              </label>
-                            ))}
-                          </div>
+                          <UnitCheckList
+                            units={units.filter((u) => u.isActive)}
+                            selected={selectedUnitIds}
+                            onToggle={toggleUnit}
+                          />
                         )}
                         <FormMessage />
                       </FormItem>
@@ -173,13 +157,13 @@ export default function InviteUserPage() {
                 )}
 
                 <Button type="submit" className="w-full" disabled={isSubmitting}>
-                  {isSubmitting ? 'Enviando convite...' : 'Enviar convite'}
+                  {isSubmitting ? messages.users.inviteSubmitting : messages.users.inviteSubmit}
                 </Button>
               </form>
             </Form>
           )}
         </CardContent>
       </Card>
-    </div>
+    </PageContainer>
   )
 }

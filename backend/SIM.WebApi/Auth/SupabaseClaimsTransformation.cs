@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.Extensions.Caching.Memory;
 using SIM.Domain.Abstractions;
 using SIM.Domain.Constants;
 using System.Security.Claims;
@@ -7,19 +8,23 @@ namespace SIM.WebApi.Auth;
 
 /// <summary>
 /// Maps provider-specific JWT claims into the application's standard claim types.
-/// Also loads the user's active UnitIds from the database (once per request via early-return guard).
+/// Also loads the user's active UnitIds from the database, cached per user for 60 seconds.
 ///
 /// Currently reads 'sim_role' and 'sim_organization_id' from Supabase's
 /// Custom Access Token Hook. To switch providers (e.g. Keycloak), replace
 /// this class with one that reads the new provider's claim names and maps
 /// them to the same SimClaimTypes / ClaimTypes.Role targets.
 /// </summary>
-public class SupabaseClaimsTransformation(IUnitOfWork unitOfWork) : IClaimsTransformation
+public class SupabaseClaimsTransformation(
+    IUnitOfWork unitOfWork,
+    IMemoryCache cache) : IClaimsTransformation
 {
+    private static readonly TimeSpan UnitIdsCacheDuration = TimeSpan.FromSeconds(60);
+
     // Source claim names as defined in the Supabase Custom Access Token Hook.
     // These are the only Supabase-specific values in the application.
     private const string SourceRoleClaim = "sim_role";
-    private const string SourceOrgClaim  = "sim_organization_id";
+    private const string SourceOrgClaim = "sim_organization_id";
 
     public async Task<ClaimsPrincipal> TransformAsync(ClaimsPrincipal principal)
     {
@@ -28,7 +33,7 @@ public class SupabaseClaimsTransformation(IUnitOfWork unitOfWork) : IClaimsTrans
             return principal;
 
         var simRole = principal.FindFirstValue(SourceRoleClaim);
-        var orgId   = principal.FindFirstValue(SourceOrgClaim);
+        var orgId = principal.FindFirstValue(SourceOrgClaim);
 
         if (simRole is null || orgId is null)
             return principal;
@@ -44,17 +49,26 @@ public class SupabaseClaimsTransformation(IUnitOfWork unitOfWork) : IClaimsTrans
 
             if (Guid.TryParse(userId, out var userGuid) && Guid.TryParse(orgId, out var orgGuid))
             {
-                const string sql = """
-                    SELECT UnitId
-                    FROM user_units
-                    WHERE UserId = @UserId
-                      AND IsActive = true
-                      AND OrganizationId = @OrganizationId
-                    """;
+                var cacheKey = $"unit_ids:{userGuid}";
 
-                var unitIds = await unitOfWork.QueryAsync<Guid>(sql, new { UserId = userGuid, OrganizationId = orgGuid });
+                var csv = await cache.GetOrCreateAsync(cacheKey, async entry =>
+                {
+                    entry.AbsoluteExpirationRelativeToNow = UnitIdsCacheDuration;
 
-                var csv = string.Join(',', unitIds);
+                    const string sql = """
+                        SELECT "UnitId"
+                        FROM user_units
+                        WHERE "UserId" = @UserId
+                          AND "IsActive" = true
+                          AND "OrganizationId" = @OrganizationId
+                        """;
+
+                    var unitIds = await unitOfWork.QueryAsync<Guid>(
+                        sql, new { UserId = userGuid, OrganizationId = orgGuid });
+
+                    return string.Join(',', unitIds);
+                });
+
                 if (!string.IsNullOrEmpty(csv))
                     identity.AddClaim(new Claim(SimClaimTypes.UnitIds, csv));
             }

@@ -33,6 +33,7 @@ builder.Services.AddAuthorization(options =>
         .RequireClaim(SimClaimTypes.OrganizationId, SystemOrganizations.SimSuporte.ToString()));
 });
 
+builder.Services.AddMemoryCache();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 

@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using Npgsql;
 using SIM.Application.Abstractions.Services;
 using SIM.Domain.Abstractions;
 using SIM.Infrastructure.Auth;
@@ -19,8 +20,22 @@ public static class DependencyInjection
         var connectionString = configuration.GetConnectionString("DefaultConnection")
             ?? throw new InvalidOperationException("ConnectionStrings:DefaultConnection is not configured.");
 
-        services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseNpgsql(connectionString));
+        // Supabase uses PgBouncer in transaction mode as its connection pooler.
+        // PgBouncer does not support Npgsql's prepared statements or connection reset protocol,
+        // causing ObjectDisposedException on the pool semaphore after idle periods
+        // (e.g. while awaiting an external HTTP call between DB operations).
+        var connectionStringBuilder = new NpgsqlConnectionStringBuilder(connectionString)
+        {
+            NoResetOnClose = true,     // PgBouncer handles connection reset, not Npgsql
+            MaxAutoPrepare = 0,        // Disable prepared statements (incompatible with transaction-mode PgBouncer)
+            Multiplexing = false,      // PgBouncer already multiplexes; Npgsql multiplexing conflicts
+        };
+
+        var dataSource = new NpgsqlDataSourceBuilder(connectionStringBuilder.ConnectionString).Build();
+        services.AddSingleton(dataSource);
+
+        services.AddDbContext<ApplicationDbContext>((sp, options) =>
+            options.UseNpgsql(sp.GetRequiredService<NpgsqlDataSource>()));
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<ApplicationDbContext>());
 

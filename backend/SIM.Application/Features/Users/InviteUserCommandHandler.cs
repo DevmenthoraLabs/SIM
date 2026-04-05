@@ -67,7 +67,7 @@ public class InviteUserCommandHandler(
             unitOfWork.UserUnits.Add(userUnit);
         }
 
-        await unitOfWork.SaveChangesAsync(cancellationToken);
+        await unitOfWork.SaveChangesAsync(CancellationToken.None);
 
         return new UserViewModel(
             userProfile.Id, userProfile.FullName, userProfile.Email, userProfile.Role,

@@ -17,6 +17,15 @@ namespace SIM.WebApi.Controllers;
 [Authorize(Roles = Roles.Admin)]
 public class UsersController : ControllerBase
 {
+    [HttpGet]
+    public async Task<IActionResult> GetAll(
+        [FromServices] GetAllUsersQuery query,
+        CancellationToken cancellationToken)
+    {
+        var result = await query.HandleAsync(cancellationToken);
+        return Ok(result);
+    }
+
     /// <summary>
     /// Invites a new user via email. Supabase sends the invitation automatically.
     /// The OrganizationId must match the Admin's own organization.

@@ -1,170 +1,87 @@
 import { Link } from 'react-router'
-import { Pencil, Trash2, Users } from 'lucide-react'
+import { Building2, Pencil, Trash2, Users } from 'lucide-react'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
+import { EmptyState } from '@/components/ui/EmptyState'
+import { Spinner } from '@/components/ui/Spinner'
+import { StatusBadge } from '@/components/ui/StatusBadge'
+import {
+  Dialog,
+  DialogBody,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import PageContainer from '@/components/layout/PageContainer'
+import PageHeader from '@/components/layout/PageHeader'
+import { messages } from '@/lib/messages'
 import { useUnits } from './useUnits'
 
 export default function UnitsPage() {
   const {
-    units,
-    loading,
-    serverError,
-    showForm,
-    editingUnit,
-    form,
-    openCreate,
-    openEdit,
-    closeForm,
-    onSubmit,
-    isSubmitting,
-    deactivate,
+    units, loading, serverError,
+    isDialogOpen, editingUnit, form,
+    openCreate, openEdit, closeDialog,
+    onSubmit, isSubmitting, deactivate,
   } = useUnits()
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-8 space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">Unidades</h1>
-        <Button onClick={showForm ? closeForm : openCreate} variant={showForm ? 'outline' : 'default'}>
-          {showForm ? 'Cancelar' : 'Nova unidade'}
-        </Button>
-      </div>
+    <PageContainer>
+      <PageHeader
+        title={messages.pages.unitsTitle}
+        description={messages.pages.unitsDescription}
+        actions={<Button onClick={openCreate}>Nova unidade</Button>}
+      />
 
-      {showForm && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">
-              {editingUnit ? `Editar — ${editingUnit.name}` : 'Nova unidade'}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Form {...form}>
-              <form onSubmit={onSubmit} className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="name"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Nome</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Farmácia Central" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="code"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Código</FormLabel>
-                        <FormControl>
-                          <Input placeholder="FAR-01" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <FormField
-                  control={form.control}
-                  name="address"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Endereço <span className="text-muted-foreground text-xs">(opcional)</span></FormLabel>
-                      <FormControl>
-                        <Input placeholder="Rua das Flores, 123" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="phone"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Telefone <span className="text-muted-foreground text-xs">(opcional)</span></FormLabel>
-                      <FormControl>
-                        <Input placeholder="(11) 91234-5678" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {serverError && (
-                  <p className="text-sm text-destructive">{serverError}</p>
-                )}
-
-                <Button type="submit" disabled={isSubmitting}>
-                  {isSubmitting
-                    ? editingUnit ? 'Salvando...' : 'Criando...'
-                    : editingUnit ? 'Salvar alterações' : 'Criar unidade'}
-                </Button>
-              </form>
-            </Form>
-          </CardContent>
-        </Card>
-      )}
-
-      <Card>
-        <CardContent className="pt-4">
+      <Card className="overflow-hidden">
+        <CardContent className="p-0">
           {loading ? (
-            <p className="text-sm text-muted-foreground py-4 text-center">Carregando...</p>
+            <div className="flex items-center justify-center gap-2 py-12">
+              <Spinner />
+              <span className="text-sm text-muted-foreground">{messages.common.loading}</span>
+            </div>
           ) : units.length === 0 ? (
-            <p className="text-sm text-muted-foreground py-4 text-center">
-              Nenhuma unidade cadastrada.
-            </p>
+            <EmptyState
+              icon={Building2}
+              title={messages.common.noData}
+              description={messages.common.noDataHint}
+              action={<Button onClick={openCreate}>{messages.units.createSubmit}</Button>}
+            />
           ) : (
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b text-muted-foreground">
-                  <th className="text-left py-2 font-medium">Nome</th>
-                  <th className="text-left py-2 font-medium">Código</th>
-                  <th className="text-left py-2 font-medium">Telefone</th>
-                  <th className="text-left py-2 font-medium">Status</th>
-                  <th className="text-right py-2 font-medium">Ações</th>
+                <tr className="border-b bg-muted/40 text-muted-foreground">
+                  <th className="text-left px-4 py-3 font-medium">Nome</th>
+                  <th className="text-left px-4 py-3 font-medium">Código</th>
+                  <th className="text-left px-4 py-3 font-medium">Telefone</th>
+                  <th className="text-left px-4 py-3 font-medium">Status</th>
+                  <th className="text-right px-4 py-3 font-medium">Ações</th>
                 </tr>
               </thead>
               <tbody>
                 {units.map((unit) => (
-                  <tr key={unit.id} className="border-b last:border-0">
-                    <td className="py-2 font-medium">{unit.name}</td>
-                    <td className="py-2 font-mono text-xs">{unit.code}</td>
-                    <td className="py-2 text-muted-foreground">{unit.phone ?? '—'}</td>
-                    <td className="py-2">
-                      <span className={`text-xs font-medium ${unit.isActive ? 'text-green-600' : 'text-destructive'}`}>
-                        {unit.isActive ? 'Ativa' : 'Inativa'}
-                      </span>
+                  <tr key={unit.id} className="border-b last:border-0 transition-colors hover:bg-muted/30">
+                    <td className="px-4 py-3 font-medium">{unit.name}</td>
+                    <td className="px-4 py-3 font-mono text-xs text-muted-foreground">{unit.code}</td>
+                    <td className="px-4 py-3 text-muted-foreground">{unit.phone ?? '—'}</td>
+                    <td className="px-4 py-3">
+                      <StatusBadge active={unit.isActive} activeLabel="Ativa" inactiveLabel="Inativa" />
                     </td>
-                    <td className="py-2 text-right">
+                    <td className="px-4 py-3 text-right">
                       <div className="flex items-center justify-end gap-1">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          asChild
-                          title="Ver usuários"
-                        >
-                          <Link to={`/units/${unit.id}/users`}>
-                            <Users className="h-4 w-4" />
-                          </Link>
+                        <Button variant="ghost" size="sm" asChild title="Ver usuários">
+                          <Link to={`/units/${unit.id}/users`}><Users className="h-4 w-4" /></Link>
                         </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => openEdit(unit)}
-                          title="Editar"
-                        >
+                        <Button variant="ghost" size="sm" onClick={() => openEdit(unit)} title="Editar">
                           <Pencil className="h-4 w-4" />
                         </Button>
                         {unit.isActive && (
                           <Button
-                            variant="ghost"
-                            size="sm"
+                            variant="ghost" size="sm"
                             onClick={() => deactivate(unit.id)}
                             title="Desativar"
                             className="text-destructive hover:text-destructive"
@@ -181,6 +98,64 @@ export default function UnitsPage() {
           )}
         </CardContent>
       </Card>
-    </div>
+
+      <Dialog open={isDialogOpen} onOpenChange={(open) => { if (!open) closeDialog() }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {editingUnit
+                ? `${messages.units.editDialogTitle} — ${editingUnit.name}`
+                : messages.units.createDialogTitle}
+            </DialogTitle>
+            {!editingUnit && <DialogDescription>{messages.units.createDialogDescription}</DialogDescription>}
+          </DialogHeader>
+          <Form {...form}>
+            <form onSubmit={onSubmit}>
+              <DialogBody className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField control={form.control} name="name" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Nome</FormLabel>
+                      <FormControl><Input placeholder="Farmácia Central" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                  <FormField control={form.control} name="code" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Código</FormLabel>
+                      <FormControl><Input placeholder="FAR-01" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                </div>
+                <FormField control={form.control} name="address" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Endereço <span className="text-muted-foreground text-xs">(opcional)</span></FormLabel>
+                    <FormControl><Input placeholder="Rua das Flores, 123" {...field} /></FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+                <FormField control={form.control} name="phone" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Telefone <span className="text-muted-foreground text-xs">(opcional)</span></FormLabel>
+                    <FormControl><Input placeholder="(11) 91234-5678" {...field} /></FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+                {serverError && <p className="text-sm text-destructive">{serverError}</p>}
+              </DialogBody>
+              <DialogFooter>
+                <Button type="button" variant="ghost" onClick={closeDialog}>{messages.common.cancel}</Button>
+                <Button type="submit" disabled={isSubmitting}>
+                  {isSubmitting
+                    ? editingUnit ? messages.units.updateSubmitting : messages.units.createSubmitting
+                    : editingUnit ? messages.units.updateSubmit : messages.units.createSubmit}
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
+    </PageContainer>
   )
 }
