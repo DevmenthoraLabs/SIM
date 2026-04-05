@@ -65,7 +65,7 @@ export default function UnitUsersPage() {
                   <tr key={user.id} className="border-b last:border-0 transition-colors hover:bg-muted/30">
                     <td className="px-4 py-3 font-medium">{user.fullName}</td>
                     <td className="px-4 py-3 text-muted-foreground">{user.email}</td>
-                    <td className="px-4 py-3">{ROLE_LABELS[user.role] ?? user.role}</td>
+                    <td className="px-4 py-3">{ROLE_LABELS[user.role as keyof typeof ROLE_LABELS] ?? user.role}</td>
                     <td className="px-4 py-3">
                       <StatusBadge active={user.isActive} />
                     </td>
