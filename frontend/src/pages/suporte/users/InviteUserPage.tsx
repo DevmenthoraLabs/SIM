@@ -1,17 +1,13 @@
+import { Link } from 'react-router'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
+import PageContainer from '@/components/layout/PageContainer'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { ROLES, ROLE_LABELS } from '@/lib/constants'
+import { messages } from '@/lib/messages'
 import { useInviteUser } from './useInviteUser'
-
-const ROLE_LABELS: Record<string, string> = {
-  SuperAdmin: 'Super Admin',
-  Admin: 'Admin',
-  Pharmacist: 'Farmacêutico',
-  StockManager: 'Gestor de Estoque',
-  ReceivingOperator: 'Operador de Recebimento',
-}
 
 export default function InviteUserPage() {
   const {
@@ -23,7 +19,6 @@ export default function InviteUserPage() {
     form,
     onSubmit,
     isSubmitting,
-    goBack,
   } = useInviteUser()
 
   const selectedUnitIds: string[] = form.watch('unitIds') ?? []
@@ -38,11 +33,8 @@ export default function InviteUserPage() {
   }
 
   return (
-    <div className="mx-auto max-w-lg px-4 py-8 space-y-6">
-      <div className="flex items-center gap-3">
-        <Button variant="ghost" size="sm" onClick={goBack}>← Voltar</Button>
-        <h1 className="text-xl font-semibold">Convidar usuário</h1>
-      </div>
+    <PageContainer narrow>
+      <h1 className="text-xl font-semibold">Convidar usuário</h1>
 
       <Card>
         <CardHeader>
@@ -54,7 +46,9 @@ export default function InviteUserPage() {
               <p className="text-sm text-green-600 font-medium">
                 Convite enviado com sucesso! O usuário receberá um email para definir sua senha.
               </p>
-              <Button variant="outline" onClick={goBack}>Voltar para organizações</Button>
+              <Button variant="outline" asChild>
+                <Link to="/suporte/organizations">Ver organizações</Link>
+              </Button>
             </div>
           ) : (
             <Form {...form}>
@@ -120,8 +114,8 @@ export default function InviteUserPage() {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {Object.entries(ROLE_LABELS).map(([value, label]) => (
-                            <SelectItem key={value} value={value}>{label}</SelectItem>
+                          {(Object.keys(ROLES) as Array<keyof typeof ROLES>).map((key) => (
+                            <SelectItem key={key} value={ROLES[key]}>{ROLE_LABELS[ROLES[key]]}</SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
@@ -140,8 +134,8 @@ export default function InviteUserPage() {
                         {units.length === 0 ? (
                           <p className="text-sm text-muted-foreground">
                             {form.watch('organizationId')
-                              ? 'Nenhuma unidade ativa encontrada para esta organização.'
-                              : 'Selecione uma organização para ver as unidades disponíveis.'}
+                              ? messages.users.noUnitsForOrg
+                              : messages.users.selectOrgFirst}
                           </p>
                         ) : (
                           <div className="flex flex-col gap-2">
@@ -173,13 +167,13 @@ export default function InviteUserPage() {
                 )}
 
                 <Button type="submit" className="w-full" disabled={isSubmitting}>
-                  {isSubmitting ? 'Enviando convite...' : 'Enviar convite'}
+                  {isSubmitting ? messages.users.inviteSubmitting : messages.users.inviteSubmit}
                 </Button>
               </form>
             </Form>
           )}
         </CardContent>
       </Card>
-    </div>
+    </PageContainer>
   )
 }

@@ -1,39 +1,48 @@
+import { Link } from 'react-router'
 import { UserMinus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import PageContainer from '@/components/layout/PageContainer'
+import { ROLE_LABELS } from '@/lib/constants'
+import { messages } from '@/lib/messages'
 import { useUnitUsers } from './useUnitUsers'
 
-const ROLE_LABELS: Record<string, string> = {
-  SuperAdmin: 'Super Admin',
-  Admin: 'Admin',
-  Pharmacist: 'Farmacêutico',
-  StockManager: 'Gestor de Estoque',
-  ReceivingOperator: 'Operador de Recebimento',
-}
-
 export default function UnitUsersPage() {
-  const { unit, users, loading, removeUser, isRemoving, goBack } = useUnitUsers()
+  const {
+    unit, users, loading,
+    availableUsers, isDialogOpen, setIsDialogOpen, closeDialog,
+    selectedUserId, setSelectedUserId,
+    removeUser, isRemoving, assignUser, isAssigning,
+  } = useUnitUsers()
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-8 space-y-6">
-      <div className="flex items-center gap-3">
-        <Button variant="ghost" size="sm" onClick={goBack}>← Voltar</Button>
+    <PageContainer>
+      <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-xl font-semibold">{unit?.name ?? 'Unidade'}</h1>
-          {unit && (
-            <p className="text-sm text-muted-foreground">Código: {unit.code}</p>
-          )}
+          <nav className="flex items-center gap-1.5 text-sm text-muted-foreground mb-0.5">
+            <Link to="/units" className="hover:text-foreground transition-colors">Unidades</Link>
+            <span>/</span>
+            <span className="text-foreground font-medium">{unit?.name ?? '...'}</span>
+          </nav>
+          {unit && <p className="text-sm text-muted-foreground">Código: {unit.code}</p>}
         </div>
+        <Button size="sm" onClick={() => setIsDialogOpen(true)}>Adicionar usuário</Button>
       </div>
 
       <Card>
         <CardContent className="pt-4">
           {loading ? (
-            <p className="text-sm text-muted-foreground py-4 text-center">Carregando...</p>
+            <p className="text-sm text-muted-foreground py-4 text-center">{messages.common.loading}</p>
           ) : users.length === 0 ? (
-            <p className="text-sm text-muted-foreground py-4 text-center">
-              Nenhum usuário atribuído a esta unidade.
-            </p>
+            <p className="text-sm text-muted-foreground py-4 text-center">{messages.users.noUsersInUnit}</p>
           ) : (
             <table className="w-full text-sm">
               <thead>
@@ -58,8 +67,7 @@ export default function UnitUsersPage() {
                     </td>
                     <td className="py-2 text-right">
                       <Button
-                        variant="ghost"
-                        size="sm"
+                        variant="ghost" size="sm"
                         onClick={() => removeUser(user.id)}
                         disabled={isRemoving}
                         title="Remover da unidade"
@@ -75,6 +83,37 @@ export default function UnitUsersPage() {
           )}
         </CardContent>
       </Card>
-    </div>
+
+      <Dialog open={isDialogOpen} onOpenChange={(open) => { if (!open) closeDialog() }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Adicionar usuário à unidade</DialogTitle>
+          </DialogHeader>
+          {availableUsers.length === 0 ? (
+            <p className="text-sm text-muted-foreground py-2">{messages.users.noUsersAvailable}</p>
+          ) : (
+            <Select value={selectedUserId} onValueChange={setSelectedUserId}>
+              <SelectTrigger>
+                <SelectValue placeholder={messages.users.selectUser} />
+              </SelectTrigger>
+              <SelectContent>
+                {availableUsers.map((u) => (
+                  <SelectItem key={u.id} value={u.id}>
+                    {u.fullName}
+                    <span className="ml-1 text-muted-foreground text-xs">({u.email})</span>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={closeDialog}>{messages.common.cancel}</Button>
+            <Button onClick={assignUser} disabled={!selectedUserId || isAssigning}>
+              {isAssigning ? 'Adicionando...' : 'Adicionar'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </PageContainer>
   )
 }

@@ -1,11 +1,11 @@
 import { Outlet } from 'react-router'
-import AppHeader from './AppHeader'
+import AppSidebar from './AppSidebar'
 
 export default function AppLayout() {
   return (
-    <div className="min-h-screen bg-background">
-      <AppHeader />
-      <main>
+    <div className="flex h-screen bg-background">
+      <AppSidebar />
+      <main className="flex-1 overflow-y-auto">
         <Outlet />
       </main>
     </div>

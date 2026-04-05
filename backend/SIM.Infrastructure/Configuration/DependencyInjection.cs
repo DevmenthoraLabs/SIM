@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using Npgsql;
 using SIM.Application.Abstractions.Services;
 using SIM.Domain.Abstractions;
 using SIM.Infrastructure.Auth;
@@ -19,8 +20,16 @@ public static class DependencyInjection
         var connectionString = configuration.GetConnectionString("DefaultConnection")
             ?? throw new InvalidOperationException("ConnectionStrings:DefaultConnection is not configured.");
 
-        services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseNpgsql(connectionString));
+        // Explicitly register NpgsqlDataSource as singleton (recommended since Npgsql 7).
+        // Without this, Npgsql creates an implicit internal data source whose lifecycle
+        // is not properly managed — its connection pool can be disposed unexpectedly
+        // during long-running requests (e.g. while awaiting an external HTTP call),
+        // causing ObjectDisposedException on the pool semaphore.
+        var dataSource = new NpgsqlDataSourceBuilder(connectionString).Build();
+        services.AddSingleton(dataSource);
+
+        services.AddDbContext<ApplicationDbContext>((sp, options) =>
+            options.UseNpgsql(sp.GetRequiredService<NpgsqlDataSource>()));
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<ApplicationDbContext>());
 

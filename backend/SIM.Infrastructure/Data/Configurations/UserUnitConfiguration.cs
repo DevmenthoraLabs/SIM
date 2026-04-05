@@ -19,11 +19,11 @@ public class UserUnitConfiguration : IEntityTypeConfiguration<UserUnit>
         builder.Property(x => x.CreatedAt).IsRequired();
         builder.Property(x => x.IsActive).IsRequired();
 
-        // Partial unique index: only one active assignment per (UserId, UnitId)
-        // Historical inactive records are kept for audit trail
-        builder.HasIndex(x => new { x.UserId, x.UnitId })
-            .IsUnique()
-            .HasFilter("user_units.IsActive = true");
+        //// Partial unique index: only one active assignment per (UserId, UnitId)
+        //// Historical inactive records are kept for audit trail
+        //builder.HasIndex(x => new { x.UserId, x.UnitId })
+        //    .IsUnique()
+        //    .HasFilter("IsActive = true");
 
         builder.HasOne(x => x.User)
             .WithMany()
