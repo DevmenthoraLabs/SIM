@@ -11,11 +11,16 @@ export const messages = {
   common: {
     loading: 'Carregando...',
     noData: 'Nenhum registro encontrado.',
+    noDataHint: 'Crie o primeiro registro para começar.',
     back: '← Voltar',
     cancel: 'Cancelar',
     unexpected: 'Um erro inesperado ocorreu.',
     errorTitle: 'Algo deu errado',
+    errorDescription: 'Ocorreu um erro inesperado. Tente recarregar a página.',
     reload: 'Recarregar página',
+    notFoundTitle: 'Página não encontrada',
+    notFoundDescription: 'A página que você procura não existe ou foi movida.',
+    backToHome: 'Voltar ao início',
   },
 
   validation: {
@@ -41,10 +46,17 @@ export const messages = {
   },
 
   auth: {
+    loginTitle: 'Bem-vindo ao SIM',
+    loginDescription: 'Entre com suas credenciais para acessar o sistema.',
+    loginSubmit: 'Entrar',
+    loginSubmitting: 'Entrando...',
+    loginSupport: 'Problemas para acessar? Entre em contato com o suporte SIM.',
+    loginError: 'Email ou senha inválidos.',
     setPasswordSubmit: 'Definir senha',
     setPasswordSubmitting: 'Salvando...',
     setPasswordError: 'Não foi possível definir a senha. O link pode ter expirado.',
-    loginError: 'Email ou senha inválidos.',
+    callbackInvalidTitle: 'Link inválido ou expirado',
+    callbackInvalidDescription: 'Solicite um novo convite ou recuperação de senha.',
   },
 
   organizations: {
@@ -52,13 +64,22 @@ export const messages = {
     createSubmitting: 'Criando...',
     createSuccess: 'Organização criada com sucesso.',
     createError: 'Erro ao criar organização. Verifique os dados e tente novamente.',
+    dialogTitle: 'Nova organização',
+    dialogDescription: 'Preencha os dados para cadastrar uma nova organização.',
   },
 
   users: {
     inviteSubmit: 'Enviar convite',
     inviteSubmitting: 'Enviando convite...',
-    inviteSuccess: 'Convite enviado com sucesso.',
+    inviteSuccess: 'Convite enviado com sucesso!',
+    inviteSuccessHint: 'O usuário receberá um email para definir sua senha.',
     inviteError: 'Erro ao enviar convite. Verifique os dados e tente novamente.',
+    inviteDialogTitle: 'Convidar usuário',
+    inviteDialogDescription: 'Envie um convite por email para um novo usuário.',
+    assignDialogTitle: 'Adicionar usuário à unidade',
+    assignDialogDescription: 'Selecione o usuário que deseja vincular.',
+    assignSubmit: 'Adicionar',
+    assignSubmitting: 'Adicionando...',
     noUnitsForOrg: 'Nenhuma unidade ativa encontrada para esta organização.',
     selectOrgFirst: 'Selecione uma organização para ver as unidades disponíveis.',
     removedFromUnit: 'Usuário removido da unidade.',
@@ -83,5 +104,28 @@ export const messages = {
     updateError: 'Erro ao atualizar unidade.',
     deactivateSuccess: 'Unidade desativada.',
     deactivateError: 'Erro ao desativar unidade.',
+    createDialogTitle: 'Nova unidade',
+    createDialogDescription: 'Preencha os dados para cadastrar uma nova unidade.',
+    editDialogTitle: 'Editar unidade',
+  },
+
+  breadcrumbs: {
+    units: 'Unidades',
+    users: 'Usuários',
+    suporte: 'Suporte',
+    organizations: 'Organizações',
+    invite: 'Convidar usuário',
+  },
+
+  pages: {
+    dashboardGreeting: 'Olá, {email}',
+    dashboardDescription: 'Bem-vindo ao SIM.',
+    unitsTitle: 'Unidades',
+    unitsDescription: 'Gerencie as unidades da organização',
+    usersTitle: 'Usuários',
+    usersDescription: 'Gerencie os usuários da organização',
+    organizationsTitle: 'Organizações',
+    organizationsDescription: 'Gerencie as organizações do sistema',
+    inviteUserTitle: 'Convidar usuário',
   },
 } as const

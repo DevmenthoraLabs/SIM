@@ -1,6 +1,6 @@
 import { Link } from 'react-router'
 import type { LucideIcon } from 'lucide-react'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 
 interface StatCardProps {
   icon: LucideIcon
@@ -13,14 +13,18 @@ interface StatCardProps {
 export function StatCard({ icon: Icon, title, stat, description, href }: StatCardProps) {
   return (
     <Link to={href} className="block group">
-      <Card className="transition-colors group-hover:bg-muted/50">
-        <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
-          <Icon className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <p className="text-2xl font-bold">{stat}</p>
-          <CardDescription className="mt-1">{description}</CardDescription>
+      <Card className="transition-all group-hover:shadow-md group-hover:border-primary/20">
+        <CardContent className="pt-6">
+          <div className="flex items-start justify-between">
+            <div className="space-y-2">
+              <p className="text-sm font-medium text-muted-foreground">{title}</p>
+              <p className="text-3xl font-bold tracking-tight">{stat}</p>
+            </div>
+            <div className="rounded-lg bg-primary/10 p-2.5">
+              <Icon className="h-5 w-5 text-primary" />
+            </div>
+          </div>
+          <p className="mt-3 text-xs text-muted-foreground">{description}</p>
         </CardContent>
       </Card>
     </Link>

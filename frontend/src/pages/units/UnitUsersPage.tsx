@@ -1,16 +1,21 @@
-import { Link } from 'react-router'
-import { UserMinus } from 'lucide-react'
+import { UserMinus, Users } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import { EmptyState } from '@/components/ui/EmptyState'
+import { Spinner } from '@/components/ui/Spinner'
+import { StatusBadge } from '@/components/ui/StatusBadge'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import {
   Dialog,
+  DialogBody,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
 import PageContainer from '@/components/layout/PageContainer'
+import PageHeader from '@/components/layout/PageHeader'
 import { ROLE_LABELS } from '@/lib/constants'
 import { messages } from '@/lib/messages'
 import { useUnitUsers } from './useUnitUsers'
@@ -25,47 +30,46 @@ export default function UnitUsersPage() {
 
   return (
     <PageContainer>
-      <div className="flex items-start justify-between">
-        <div>
-          <nav className="flex items-center gap-1.5 text-sm text-muted-foreground mb-0.5">
-            <Link to="/units" className="hover:text-foreground transition-colors">Unidades</Link>
-            <span>/</span>
-            <span className="text-foreground font-medium">{unit?.name ?? '...'}</span>
-          </nav>
-          {unit && <p className="text-sm text-muted-foreground">Código: {unit.code}</p>}
-        </div>
-        <Button size="sm" onClick={() => setIsDialogOpen(true)}>Adicionar usuário</Button>
-      </div>
+      <PageHeader
+        title={unit?.name ?? messages.common.loading}
+        description={unit ? `Código: ${unit.code}` : undefined}
+        actions={<Button size="sm" onClick={() => setIsDialogOpen(true)}>Adicionar usuário</Button>}
+      />
 
-      <Card>
-        <CardContent className="pt-4">
+      <Card className="overflow-hidden">
+        <CardContent className="p-0">
           {loading ? (
-            <p className="text-sm text-muted-foreground py-4 text-center">{messages.common.loading}</p>
+            <div className="flex items-center justify-center gap-2 py-12">
+              <Spinner />
+              <span className="text-sm text-muted-foreground">{messages.common.loading}</span>
+            </div>
           ) : users.length === 0 ? (
-            <p className="text-sm text-muted-foreground py-4 text-center">{messages.users.noUsersInUnit}</p>
+            <EmptyState
+              icon={Users}
+              title={messages.users.noUsersInUnit}
+              action={<Button size="sm" onClick={() => setIsDialogOpen(true)}>{messages.users.assignSubmit}</Button>}
+            />
           ) : (
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b text-muted-foreground">
-                  <th className="text-left py-2 font-medium">Nome</th>
-                  <th className="text-left py-2 font-medium">Email</th>
-                  <th className="text-left py-2 font-medium">Perfil</th>
-                  <th className="text-left py-2 font-medium">Status</th>
-                  <th className="text-right py-2 font-medium">Ações</th>
+                <tr className="border-b bg-muted/40 text-muted-foreground">
+                  <th className="text-left px-4 py-3 font-medium">Nome</th>
+                  <th className="text-left px-4 py-3 font-medium">Email</th>
+                  <th className="text-left px-4 py-3 font-medium">Perfil</th>
+                  <th className="text-left px-4 py-3 font-medium">Status</th>
+                  <th className="text-right px-4 py-3 font-medium">Ações</th>
                 </tr>
               </thead>
               <tbody>
                 {users.map((user) => (
-                  <tr key={user.id} className="border-b last:border-0">
-                    <td className="py-2 font-medium">{user.fullName}</td>
-                    <td className="py-2 text-muted-foreground">{user.email}</td>
-                    <td className="py-2">{ROLE_LABELS[user.role] ?? user.role}</td>
-                    <td className="py-2">
-                      <span className={`text-xs font-medium ${user.isActive ? 'text-green-600' : 'text-destructive'}`}>
-                        {user.isActive ? 'Ativo' : 'Inativo'}
-                      </span>
+                  <tr key={user.id} className="border-b last:border-0 transition-colors hover:bg-muted/30">
+                    <td className="px-4 py-3 font-medium">{user.fullName}</td>
+                    <td className="px-4 py-3 text-muted-foreground">{user.email}</td>
+                    <td className="px-4 py-3">{ROLE_LABELS[user.role] ?? user.role}</td>
+                    <td className="px-4 py-3">
+                      <StatusBadge active={user.isActive} />
                     </td>
-                    <td className="py-2 text-right">
+                    <td className="px-4 py-3 text-right">
                       <Button
                         variant="ghost" size="sm"
                         onClick={() => removeUser(user.id)}
@@ -87,29 +91,32 @@ export default function UnitUsersPage() {
       <Dialog open={isDialogOpen} onOpenChange={(open) => { if (!open) closeDialog() }}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Adicionar usuário à unidade</DialogTitle>
+            <DialogTitle>{messages.users.assignDialogTitle}</DialogTitle>
+            <DialogDescription>{messages.users.assignDialogDescription}</DialogDescription>
           </DialogHeader>
-          {availableUsers.length === 0 ? (
-            <p className="text-sm text-muted-foreground py-2">{messages.users.noUsersAvailable}</p>
-          ) : (
-            <Select value={selectedUserId} onValueChange={setSelectedUserId}>
-              <SelectTrigger>
-                <SelectValue placeholder={messages.users.selectUser} />
-              </SelectTrigger>
-              <SelectContent>
-                {availableUsers.map((u) => (
-                  <SelectItem key={u.id} value={u.id}>
-                    {u.fullName}
-                    <span className="ml-1 text-muted-foreground text-xs">({u.email})</span>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          )}
+          <DialogBody>
+            {availableUsers.length === 0 ? (
+              <p className="text-sm text-muted-foreground">{messages.users.noUsersAvailable}</p>
+            ) : (
+              <Select value={selectedUserId} onValueChange={setSelectedUserId}>
+                <SelectTrigger>
+                  <SelectValue placeholder={messages.users.selectUser} />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableUsers.map((u) => (
+                    <SelectItem key={u.id} value={u.id}>
+                      {u.fullName}
+                      <span className="ml-1 text-muted-foreground text-xs">({u.email})</span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          </DialogBody>
           <DialogFooter>
-            <Button variant="outline" onClick={closeDialog}>{messages.common.cancel}</Button>
+            <Button variant="ghost" onClick={closeDialog}>{messages.common.cancel}</Button>
             <Button onClick={assignUser} disabled={!selectedUserId || isAssigning}>
-              {isAssigning ? 'Adicionando...' : 'Adicionar'}
+              {isAssigning ? messages.users.assignSubmitting : messages.users.assignSubmit}
             </Button>
           </DialogFooter>
         </DialogContent>
