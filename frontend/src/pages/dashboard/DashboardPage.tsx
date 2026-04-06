@@ -20,9 +20,9 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <StatCard
             icon={Building2}
-            title="Unidades"
+            title={messages.pages.dashboardStatUnitsTitle}
             stat={activeUnits.length}
-            description="Unidades ativas na organização"
+            description={messages.pages.dashboardStatUnitsDesc}
             href="/units"
           />
         </div>
@@ -32,16 +32,16 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <StatCard
             icon={ShieldCheck}
-            title="Organizações"
+            title={messages.pages.dashboardStatOrgsTitle}
             stat={totalOrganizations}
-            description="Organizações cadastradas no sistema"
+            description={messages.pages.dashboardStatOrgsDesc}
             href="/suporte/organizations"
           />
           <StatCard
             icon={UserPlus}
-            title="Convidar usuário"
+            title={messages.pages.dashboardStatInviteTitle}
             stat="→"
-            description="Enviar convite para novo usuário"
+            description={messages.pages.dashboardStatInviteDesc}
             href="/suporte/users/invite"
           />
         </div>
@@ -50,7 +50,7 @@ export default function DashboardPage() {
       {isOperational && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Unidades da organização</CardTitle>
+            <CardTitle className="text-base">{messages.pages.dashboardCardTitle}</CardTitle>
           </CardHeader>
           <CardContent>
             {activeUnits.length === 0 ? (

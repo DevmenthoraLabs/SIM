@@ -33,7 +33,7 @@ export default function SuporteOrganizationsPage() {
       <PageHeader
         title={messages.pages.organizationsTitle}
         description={messages.pages.organizationsDescription}
-        actions={<Button onClick={() => setIsDialogOpen(true)}>Nova organização</Button>}
+        actions={<Button onClick={() => setIsDialogOpen(true)}>{messages.organizations.newButton}</Button>}
       />
 
       <Card className="overflow-hidden">
@@ -54,10 +54,10 @@ export default function SuporteOrganizationsPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b bg-muted/40 text-muted-foreground">
-                  <th className="text-left px-4 py-3 font-medium">Nome</th>
-                  <th className="text-left px-4 py-3 font-medium">CNPJ</th>
-                  <th className="text-left px-4 py-3 font-medium">Tipo</th>
-                  <th className="text-left px-4 py-3 font-medium">Status</th>
+                  <th className="text-left px-4 py-3 font-medium">{messages.fields.nome}</th>
+                  <th className="text-left px-4 py-3 font-medium">{messages.fields.cnpj}</th>
+                  <th className="text-left px-4 py-3 font-medium">{messages.fields.tipo}</th>
+                  <th className="text-left px-4 py-3 font-medium">{messages.fields.status}</th>
                 </tr>
               </thead>
               <tbody>
@@ -65,9 +65,9 @@ export default function SuporteOrganizationsPage() {
                   <tr key={org.id} className="border-b last:border-0 transition-colors hover:bg-muted/30">
                     <td className="px-4 py-3 font-medium">{org.name}</td>
                     <td className="px-4 py-3 font-mono text-xs text-muted-foreground">{org.cnpj}</td>
-                    <td className="px-4 py-3">{org.type === 'Public' ? 'Pública' : 'Privada'}</td>
+                    <td className="px-4 py-3">{org.type === 'Public' ? messages.organizations.typePublica : messages.organizations.typePrivada}</td>
                     <td className="px-4 py-3">
-                      <StatusBadge active={org.isActive} activeLabel="Ativa" inactiveLabel="Inativa" />
+                      <StatusBadge active={org.isActive} activeLabel={messages.status.ativa} inactiveLabel={messages.status.inativa} />
                     </td>
                   </tr>
                 ))}
@@ -88,29 +88,29 @@ export default function SuporteOrganizationsPage() {
               <DialogBody className="space-y-4">
                 <FormField control={form.control} name="name" render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Nome</FormLabel>
-                    <FormControl><Input placeholder="Farmácia Central" {...field} /></FormControl>
+                    <FormLabel>{messages.fields.nome}</FormLabel>
+                    <FormControl><Input placeholder={messages.fields.placeholderFarmacia} {...field} /></FormControl>
                     <FormMessage />
                   </FormItem>
                 )} />
                 <div className="grid grid-cols-2 gap-4">
                   <FormField control={form.control} name="cnpj" render={({ field }) => (
                     <FormItem>
-                      <FormLabel>CNPJ</FormLabel>
-                      <FormControl><Input placeholder="00000000000000" maxLength={14} {...field} /></FormControl>
+                      <FormLabel>{messages.fields.cnpj}</FormLabel>
+                      <FormControl><Input placeholder={messages.fields.placeholderCnpj} maxLength={14} {...field} /></FormControl>
                       <FormMessage />
                     </FormItem>
                   )} />
                   <FormField control={form.control} name="type" render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Tipo</FormLabel>
+                      <FormLabel>{messages.fields.tipo}</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
-                          <SelectTrigger><SelectValue placeholder="Selecione o tipo" /></SelectTrigger>
+                          <SelectTrigger><SelectValue placeholder={messages.fields.selectTipo} /></SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="Private">Privada</SelectItem>
-                          <SelectItem value="Public">Pública</SelectItem>
+                          <SelectItem value="Private">{messages.organizations.typePrivada}</SelectItem>
+                          <SelectItem value="Public">{messages.organizations.typePublica}</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />

@@ -58,9 +58,9 @@ export default function AuthCallbackPage() {
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Nova senha</FormLabel>
+                      <FormLabel>{messages.fields.novaSegura}</FormLabel>
                       <FormControl>
-                        <Input type="password" placeholder="••••••••" {...field} />
+                        <Input type="password" placeholder={messages.auth.passwordPlaceholder} {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -71,9 +71,9 @@ export default function AuthCallbackPage() {
                   name="confirmPassword"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Confirmar senha</FormLabel>
+                      <FormLabel>{messages.fields.confirmarSenha}</FormLabel>
                       <FormControl>
-                        <Input type="password" placeholder="••••••••" {...field} />
+                        <Input type="password" placeholder={messages.auth.passwordPlaceholder} {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

@@ -46,6 +46,7 @@ public static class ValidationMessages
     public const string UnitCodeAlreadyExists = "A unit with this code already exists in the organization.";
     public const string UnitPhoneTooLong = "Phone must not exceed 20 characters.";
     public const string UnitNotFound = "Unit not found.";
+    public const string UnitInactive = "This unit is inactive and cannot be edited.";
     public const string UnitNotFoundOrInactive = "One or more units were not found or are inactive.";
     public const string UnitRequiredForRole = "At least one unit must be assigned for this role.";
     public const string UnitIdRequired = "Unit ID is required.";

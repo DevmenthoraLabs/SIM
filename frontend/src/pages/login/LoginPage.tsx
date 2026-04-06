@@ -23,9 +23,9 @@ export default function LoginPage() {
           <div className="h-16 w-16 rounded-2xl bg-white/10 flex items-center justify-center">
             <span className="text-2xl font-bold text-white">S</span>
           </div>
-          <span className="text-4xl font-bold tracking-tight text-white">SIM</span>
+          <span className="text-4xl font-bold tracking-tight text-white">{messages.nav.sim}</span>
           <p className="text-sm text-gray-400 tracking-wide uppercase">
-            Sistema Integrado de Medicamentos
+            {messages.auth.appTagline}
           </p>
         </div>
       </div>
@@ -58,9 +58,9 @@ export default function LoginPage() {
                     name="email"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Email</FormLabel>
+                        <FormLabel>{messages.fields.email}</FormLabel>
                         <FormControl>
-                          <Input type="email" placeholder="voce@exemplo.com" {...field} />
+                          <Input type="email" placeholder={messages.fields.placeholderEmail} {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -72,9 +72,9 @@ export default function LoginPage() {
                     name="password"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Senha</FormLabel>
+                        <FormLabel>{messages.fields.senha}</FormLabel>
                         <FormControl>
-                          <Input type="password" placeholder="••••••••" {...field} />
+                          <Input type="password" placeholder={messages.auth.passwordPlaceholder} {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>

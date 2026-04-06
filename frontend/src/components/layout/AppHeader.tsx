@@ -2,6 +2,7 @@ import { Link, NavLink } from 'react-router'
 import { ChevronDown, LogOut } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { ROLES } from '@/lib/constants'
+import { messages } from '@/lib/messages'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,20 +28,20 @@ export default function AppHeader() {
     <header className="border-b bg-background sticky top-0 z-40">
       <div className="mx-auto max-w-7xl px-4 h-14 flex items-center gap-6">
         <Link to="/" className="text-lg font-bold tracking-tight text-foreground shrink-0">
-          SIM
+          {messages.nav.sim}
         </Link>
 
         <nav className="flex items-center gap-1 flex-1">
           {isAdmin && (
             <>
-              <NavLink to="/units" className={navLinkClass}>Unidades</NavLink>
-              <NavLink to="/users" className={navLinkClass}>Usuários</NavLink>
+              <NavLink to="/units" className={navLinkClass}>{messages.nav.unidades}</NavLink>
+              <NavLink to="/users" className={navLinkClass}>{messages.nav.usuarios}</NavLink>
             </>
           )}
           {isSuperAdmin && (
             <>
-              <NavLink to="/suporte/organizations" className={navLinkClass}>Organizações</NavLink>
-              <NavLink to="/suporte/users/invite" className={navLinkClass}>Convidar usuário</NavLink>
+              <NavLink to="/suporte/organizations" className={navLinkClass}>{messages.nav.organizacoes}</NavLink>
+              <NavLink to="/suporte/users/invite" className={navLinkClass}>{messages.nav.convidarUsuario}</NavLink>
             </>
           )}
         </nav>
@@ -58,7 +59,7 @@ export default function AppHeader() {
                 className="text-destructive focus:text-destructive"
               >
                 <LogOut className="h-4 w-4" />
-                Sair
+                {messages.nav.sair}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
