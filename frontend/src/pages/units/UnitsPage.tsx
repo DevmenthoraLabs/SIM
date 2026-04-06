@@ -34,7 +34,7 @@ export default function UnitsPage() {
       <PageHeader
         title={messages.pages.unitsTitle}
         description={messages.pages.unitsDescription}
-        actions={<Button onClick={openCreate}>Nova unidade</Button>}
+        actions={<Button onClick={openCreate}>{messages.units.newButton}</Button>}
       />
 
       <Card className="overflow-hidden">
@@ -55,11 +55,11 @@ export default function UnitsPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b bg-muted/40 text-muted-foreground">
-                  <th className="text-left px-4 py-3 font-medium">Nome</th>
-                  <th className="text-left px-4 py-3 font-medium">Código</th>
-                  <th className="text-left px-4 py-3 font-medium">Telefone</th>
-                  <th className="text-left px-4 py-3 font-medium">Status</th>
-                  <th className="text-right px-4 py-3 font-medium">Ações</th>
+                  <th className="text-left px-4 py-3 font-medium">{messages.fields.nome}</th>
+                  <th className="text-left px-4 py-3 font-medium">{messages.fields.codigo}</th>
+                  <th className="text-left px-4 py-3 font-medium">{messages.fields.telefone}</th>
+                  <th className="text-left px-4 py-3 font-medium">{messages.fields.status}</th>
+                  <th className="text-right px-4 py-3 font-medium">{messages.fields.acoes}</th>
                 </tr>
               </thead>
               <tbody>
@@ -69,21 +69,23 @@ export default function UnitsPage() {
                     <td className="px-4 py-3 font-mono text-xs text-muted-foreground">{unit.code}</td>
                     <td className="px-4 py-3 text-muted-foreground">{unit.phone ?? '—'}</td>
                     <td className="px-4 py-3">
-                      <StatusBadge active={unit.isActive} activeLabel="Ativa" inactiveLabel="Inativa" />
+                      <StatusBadge active={unit.isActive} activeLabel={messages.status.ativa} inactiveLabel={messages.status.inativa} />
                     </td>
                     <td className="px-4 py-3 text-right">
                       <div className="flex items-center justify-end gap-1">
-                        <Button variant="ghost" size="sm" asChild title="Ver usuários">
+                        <Button variant="ghost" size="sm" asChild title={messages.units.viewUsersButton}>
                           <Link to={`/units/${unit.id}/users`}><Users className="h-4 w-4" /></Link>
                         </Button>
-                        <Button variant="ghost" size="sm" onClick={() => openEdit(unit)} title="Editar">
-                          <Pencil className="h-4 w-4" />
-                        </Button>
+                        {unit.isActive && (
+                          <Button variant="ghost" size="sm" onClick={() => openEdit(unit)} title={messages.units.editButton}>
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                        )}
                         {unit.isActive && (
                           <Button
                             variant="ghost" size="sm"
                             onClick={() => deactivate(unit.id)}
-                            title="Desativar"
+                            title={messages.units.deactivateButton}
                             className="text-destructive hover:text-destructive"
                           >
                             <Trash2 className="h-4 w-4" />
@@ -115,30 +117,30 @@ export default function UnitsPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <FormField control={form.control} name="name" render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Nome</FormLabel>
-                      <FormControl><Input placeholder="Farmácia Central" {...field} /></FormControl>
+                      <FormLabel>{messages.fields.nome}</FormLabel>
+                      <FormControl><Input placeholder={messages.fields.placeholderFarmacia} {...field} /></FormControl>
                       <FormMessage />
                     </FormItem>
                   )} />
                   <FormField control={form.control} name="code" render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Código</FormLabel>
-                      <FormControl><Input placeholder="FAR-01" {...field} /></FormControl>
+                      <FormLabel>{messages.fields.codigo}</FormLabel>
+                      <FormControl><Input placeholder={messages.fields.placeholderCodigo} {...field} /></FormControl>
                       <FormMessage />
                     </FormItem>
                   )} />
                 </div>
                 <FormField control={form.control} name="address" render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Endereço <span className="text-muted-foreground text-xs">(opcional)</span></FormLabel>
-                    <FormControl><Input placeholder="Rua das Flores, 123" {...field} /></FormControl>
+                    <FormLabel>{messages.fields.endereco} <span className="text-muted-foreground text-xs">{messages.fields.opcional}</span></FormLabel>
+                    <FormControl><Input placeholder={messages.fields.placeholderEndereco} {...field} /></FormControl>
                     <FormMessage />
                   </FormItem>
                 )} />
                 <FormField control={form.control} name="phone" render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Telefone <span className="text-muted-foreground text-xs">(opcional)</span></FormLabel>
-                    <FormControl><Input placeholder="(11) 91234-5678" {...field} /></FormControl>
+                    <FormLabel>{messages.fields.telefone} <span className="text-muted-foreground text-xs">{messages.fields.opcional}</span></FormLabel>
+                    <FormControl><Input placeholder={messages.fields.placeholderTelefone} {...field} /></FormControl>
                     <FormMessage />
                   </FormItem>
                 )} />

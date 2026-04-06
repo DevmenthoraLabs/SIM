@@ -60,10 +60,10 @@ export default function UsersPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b bg-muted/40 text-muted-foreground">
-                  <th className="text-left px-4 py-3 font-medium">Nome</th>
-                  <th className="text-left px-4 py-3 font-medium">Email</th>
-                  <th className="text-left px-4 py-3 font-medium">Perfil</th>
-                  <th className="text-left px-4 py-3 font-medium">Status</th>
+                  <th className="text-left px-4 py-3 font-medium">{messages.fields.nome}</th>
+                  <th className="text-left px-4 py-3 font-medium">{messages.fields.email}</th>
+                  <th className="text-left px-4 py-3 font-medium">{messages.fields.perfil}</th>
+                  <th className="text-left px-4 py-3 font-medium">{messages.fields.status}</th>
                 </tr>
               </thead>
               <tbody>
@@ -86,7 +86,7 @@ export default function UsersPage() {
                       </Select>
                     </td>
                     <td className="px-4 py-3">
-                      <StatusBadge active={user.isActive} />
+                      <StatusBadge active={user.isActive} activeLabel={messages.status.ativo} inactiveLabel={messages.status.inativo} />
                     </td>
                   </tr>
                 ))}
@@ -108,25 +108,25 @@ export default function UsersPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <FormField control={form.control} name="email" render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Email</FormLabel>
-                      <FormControl><Input type="email" placeholder="usuario@farmacia.com" {...field} /></FormControl>
+                      <FormLabel>{messages.fields.email}</FormLabel>
+                      <FormControl><Input type="email" placeholder={messages.fields.placeholderEmailUsuario} {...field} /></FormControl>
                       <FormMessage />
                     </FormItem>
                   )} />
                   <FormField control={form.control} name="fullName" render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Nome completo</FormLabel>
-                      <FormControl><Input placeholder="João da Silva" {...field} /></FormControl>
+                      <FormLabel>{messages.fields.nome}</FormLabel>
+                      <FormControl><Input placeholder={messages.fields.placeholderNome} {...field} /></FormControl>
                       <FormMessage />
                     </FormItem>
                   )} />
                 </div>
                 <FormField control={form.control} name="role" render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Perfil</FormLabel>
+                    <FormLabel>{messages.fields.perfil}</FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
-                        <SelectTrigger><SelectValue placeholder="Selecione um perfil..." /></SelectTrigger>
+                        <SelectTrigger><SelectValue placeholder={messages.fields.selectPerfil} /></SelectTrigger>
                       </FormControl>
                       <SelectContent>
                         {(Object.keys(ROLES) as Array<keyof typeof ROLES>)
@@ -142,7 +142,7 @@ export default function UsersPage() {
                 {isOperationalRole && (
                   <FormField control={form.control} name="unitIds" render={() => (
                     <FormItem>
-                      <FormLabel>Unidades</FormLabel>
+                      <FormLabel>{messages.fields.unidades}</FormLabel>
                       {units.length === 0 ? (
                         <p className="text-sm text-muted-foreground">{messages.users.noUnitsForOrg}</p>
                       ) : (

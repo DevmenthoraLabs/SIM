@@ -24,6 +24,8 @@ public class UpdateUnitCommandHandler(
             .FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
         if (unit is null)
             throw new BusinessLogicException(ValidationMessages.UnitNotFound);
+        if (!unit.IsActive)
+            throw new BusinessLogicException(ValidationMessages.UnitInactive);
 
         var codeConflict = await unitOfWork.Units
             .AnyAsync(u => u.Code == vm.Code.Trim() && u.Id != id, cancellationToken);

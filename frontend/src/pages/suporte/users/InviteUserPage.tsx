@@ -60,9 +60,9 @@ export default function InviteUserPage() {
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Email</FormLabel>
+                      <FormLabel>{messages.fields.email}</FormLabel>
                       <FormControl>
-                        <Input type="email" placeholder="usuario@farmacia.com" {...field} />
+                        <Input type="email" placeholder={messages.fields.placeholderEmailUsuario} {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -73,9 +73,9 @@ export default function InviteUserPage() {
                   name="fullName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Nome completo</FormLabel>
+                      <FormLabel>{messages.fields.nome}</FormLabel>
                       <FormControl>
-                        <Input placeholder="João da Silva" {...field} />
+                        <Input placeholder={messages.fields.placeholderNome} {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -86,11 +86,11 @@ export default function InviteUserPage() {
                   name="organizationId"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Organização</FormLabel>
+                      <FormLabel>{messages.fields.organizacao}</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Selecione uma organização..." />
+                            <SelectValue placeholder={messages.fields.selectOrganizacao} />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -108,11 +108,11 @@ export default function InviteUserPage() {
                   name="role"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Perfil</FormLabel>
+                      <FormLabel>{messages.fields.perfil}</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Selecione um perfil..." />
+                            <SelectValue placeholder={messages.fields.selectPerfil} />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -132,7 +132,7 @@ export default function InviteUserPage() {
                     name="unitIds"
                     render={() => (
                       <FormItem>
-                        <FormLabel>Unidades</FormLabel>
+                        <FormLabel>{messages.fields.unidades}</FormLabel>
                         {units.length === 0 ? (
                           <p className="text-sm text-muted-foreground">
                             {form.watch('organizationId')

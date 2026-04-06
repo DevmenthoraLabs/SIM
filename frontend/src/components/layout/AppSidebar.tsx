@@ -11,6 +11,7 @@ import {
 import { cn } from '@/lib/utils'
 import { useAuth } from '@/hooks/useAuth'
 import { ROLES } from '@/lib/constants'
+import { messages } from '@/lib/messages'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
 import {
   DropdownMenu,
@@ -48,7 +49,7 @@ export default function AppSidebar() {
           <div className="h-7 w-7 rounded-lg bg-primary flex items-center justify-center">
             <span className="text-xs font-bold text-primary-foreground">S</span>
           </div>
-          <span className="text-base font-bold tracking-tight text-foreground">SIM</span>
+          <span className="text-base font-bold tracking-tight text-foreground">{messages.nav.sim}</span>
         </NavLink>
       </div>
 
@@ -56,33 +57,33 @@ export default function AppSidebar() {
       <nav className="flex-1 overflow-y-auto px-3 py-3 space-y-0.5">
         <NavLink to="/" end className={navItem}>
           <LayoutDashboard className="h-4 w-4" />
-          Dashboard
+          {messages.nav.dashboard}
         </NavLink>
 
         {isAdmin && (
           <>
-            <SectionLabel>Administração</SectionLabel>
+            <SectionLabel>{messages.nav.administracao}</SectionLabel>
             <NavLink to="/units" className={navItem}>
               <Building2 className="h-4 w-4" />
-              Unidades
+              {messages.nav.unidades}
             </NavLink>
             <NavLink to="/users" className={navItem}>
               <Users className="h-4 w-4" />
-              Usuários
+              {messages.nav.usuarios}
             </NavLink>
           </>
         )}
 
         {isSuperAdmin && (
           <>
-            <SectionLabel>Suporte</SectionLabel>
+            <SectionLabel>{messages.nav.suporte}</SectionLabel>
             <NavLink to="/suporte/organizations" className={navItem}>
               <ShieldCheck className="h-4 w-4" />
-              Organizações
+              {messages.nav.organizacoes}
             </NavLink>
             <NavLink to="/suporte/users/invite" className={navItem}>
               <UserPlus className="h-4 w-4" />
-              Convidar usuário
+              {messages.nav.convidarUsuario}
             </NavLink>
           </>
         )}
@@ -103,7 +104,7 @@ export default function AppSidebar() {
           <DropdownMenuContent side="top" align="start" className="w-52">
             <DropdownMenuItem onClick={signOut} className="text-destructive focus:text-destructive">
               <LogOut className="h-4 w-4" />
-              Sair
+              {messages.nav.sair}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
