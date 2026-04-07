@@ -1,7 +1,7 @@
 import { Link } from 'react-router'
 import { Building2, Pencil, Trash2, Users } from 'lucide-react'
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
+import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form'
+import { FloatingLabelInput } from '@/components/ui/FloatingLabelInput'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { EmptyState } from '@/components/ui/EmptyState'
@@ -117,30 +117,26 @@ export default function UnitsPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <FormField control={form.control} name="name" render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{messages.fields.nome}</FormLabel>
-                      <FormControl><Input placeholder={messages.fields.placeholderFarmacia} {...field} /></FormControl>
+                      <FormControl><FloatingLabelInput label={messages.fields.nome} {...field} /></FormControl>
                       <FormMessage />
                     </FormItem>
                   )} />
                   <FormField control={form.control} name="code" render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{messages.fields.codigo}</FormLabel>
-                      <FormControl><Input placeholder={messages.fields.placeholderCodigo} {...field} /></FormControl>
+                      <FormControl><FloatingLabelInput label={messages.fields.codigo} {...field} /></FormControl>
                       <FormMessage />
                     </FormItem>
                   )} />
                 </div>
                 <FormField control={form.control} name="address" render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{messages.fields.endereco} <span className="text-muted-foreground text-xs">{messages.fields.opcional}</span></FormLabel>
-                    <FormControl><Input placeholder={messages.fields.placeholderEndereco} {...field} /></FormControl>
+                    <FormControl><FloatingLabelInput label={`${messages.fields.endereco} ${messages.fields.opcional}`} {...field} /></FormControl>
                     <FormMessage />
                   </FormItem>
                 )} />
                 <FormField control={form.control} name="phone" render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{messages.fields.telefone} <span className="text-muted-foreground text-xs">{messages.fields.opcional}</span></FormLabel>
-                    <FormControl><Input placeholder={messages.fields.placeholderTelefone} {...field} /></FormControl>
+                    <FormControl><FloatingLabelInput label={`${messages.fields.telefone} ${messages.fields.opcional}`} {...field} /></FormControl>
                     <FormMessage />
                   </FormItem>
                 )} />

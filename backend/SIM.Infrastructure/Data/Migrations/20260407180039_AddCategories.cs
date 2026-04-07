@@ -49,7 +49,7 @@ namespace SIM.Infrastructure.Data.Migrations
                 table: "user_units",
                 columns: new[] { "UserId", "UnitId" },
                 unique: true,
-                filter: "IsActive = true");
+                filter: "\"IsActive\" = true");
 
             migrationBuilder.CreateIndex(
                 name: "IX_products_CategoryId",

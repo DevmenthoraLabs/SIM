@@ -3,7 +3,7 @@ import { Check } from 'lucide-react'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import PageContainer from '@/components/layout/PageContainer'
 import PageHeader from '@/components/layout/PageHeader'
-import { Input } from '@/components/ui/input'
+import { FloatingLabelInput } from '@/components/ui/FloatingLabelInput'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -60,9 +60,8 @@ export default function InviteUserPage() {
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{messages.fields.email}</FormLabel>
                       <FormControl>
-                        <Input type="email" placeholder={messages.fields.placeholderEmailUsuario} {...field} />
+                        <FloatingLabelInput type="email" label={messages.fields.email} {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -73,9 +72,8 @@ export default function InviteUserPage() {
                   name="fullName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{messages.fields.nome}</FormLabel>
                       <FormControl>
-                        <Input placeholder={messages.fields.placeholderNome} {...field} />
+                        <FloatingLabelInput label={messages.fields.nome} {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

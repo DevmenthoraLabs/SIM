@@ -1,6 +1,6 @@
 import { Users } from 'lucide-react'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
+import { FloatingLabelInput } from '@/components/ui/FloatingLabelInput'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { EmptyState } from '@/components/ui/EmptyState'
@@ -108,15 +108,13 @@ export default function UsersPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <FormField control={form.control} name="email" render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{messages.fields.email}</FormLabel>
-                      <FormControl><Input type="email" placeholder={messages.fields.placeholderEmailUsuario} {...field} /></FormControl>
+                      <FormControl><FloatingLabelInput type="email" label={messages.fields.email} {...field} /></FormControl>
                       <FormMessage />
                     </FormItem>
                   )} />
                   <FormField control={form.control} name="fullName" render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{messages.fields.nome}</FormLabel>
-                      <FormControl><Input placeholder={messages.fields.placeholderNome} {...field} /></FormControl>
+                      <FormControl><FloatingLabelInput label={messages.fields.nome} {...field} /></FormControl>
                       <FormMessage />
                     </FormItem>
                   )} />
