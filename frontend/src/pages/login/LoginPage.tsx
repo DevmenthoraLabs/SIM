@@ -1,5 +1,5 @@
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
+import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form'
+import { FloatingLabelInput } from '@/components/ui/FloatingLabelInput'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
@@ -58,9 +58,8 @@ export default function LoginPage() {
                     name="email"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>{messages.fields.email}</FormLabel>
                         <FormControl>
-                          <Input type="email" placeholder={messages.fields.placeholderEmail} {...field} />
+                          <FloatingLabelInput type="email" label={messages.fields.email} {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -72,9 +71,8 @@ export default function LoginPage() {
                     name="password"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>{messages.fields.senha}</FormLabel>
                         <FormControl>
-                          <Input type="password" placeholder={messages.auth.passwordPlaceholder} {...field} />
+                          <FloatingLabelInput type="password" label={messages.fields.senha} {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>

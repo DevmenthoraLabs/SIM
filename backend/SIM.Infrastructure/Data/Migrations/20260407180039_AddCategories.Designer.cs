@@ -2,18 +2,21 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SIM.Infrastructure.Data;
 
 #nullable disable
 
-namespace SIM.Infrastructure.Migrations
+namespace SIM.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260407180039_AddCategories")]
+    partial class AddCategories
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -326,7 +329,7 @@ namespace SIM.Infrastructure.Migrations
 
             modelBuilder.Entity("SIM.Domain.Entities.Product", b =>
                 {
-                    b.HasOne("SIM.Domain.Entities.Category", "Category")
+                    b.HasOne("SIM.Domain.Entities.Category", null)
                         .WithMany()
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.SetNull);
@@ -336,8 +339,6 @@ namespace SIM.Infrastructure.Migrations
                         .HasForeignKey("OrganizationId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.Navigation("Category");
                 });
 
             modelBuilder.Entity("SIM.Domain.Entities.Unit", b =>

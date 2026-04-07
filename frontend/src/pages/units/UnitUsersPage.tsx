@@ -1,5 +1,7 @@
+import { useState } from 'react'
 import { UserMinus, Users } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { Card, CardContent } from '@/components/ui/card'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { Spinner } from '@/components/ui/Spinner'
@@ -27,6 +29,8 @@ export default function UnitUsersPage() {
     selectedUserId, setSelectedUserId,
     removeUser, isRemoving, assignUser, isAssigning,
   } = useUnitUsers()
+
+  const [pendingRemoveId, setPendingRemoveId] = useState<string | null>(null)
 
   return (
     <PageContainer>
@@ -70,15 +74,17 @@ export default function UnitUsersPage() {
                       <StatusBadge active={user.isActive} activeLabel={messages.status.ativo} inactiveLabel={messages.status.inativo} />
                     </td>
                     <td className="px-4 py-3 text-right">
-                      <Button
-                        variant="ghost" size="sm"
-                        onClick={() => removeUser(user.id)}
-                        disabled={isRemoving}
-                        title={messages.users.removeFromUnitButton}
-                        className="text-destructive hover:text-destructive"
-                      >
-                        <UserMinus className="h-4 w-4" />
-                      </Button>
+                      {unit?.isActive && (
+                        <Button
+                          variant="ghost" size="sm"
+                          onClick={() => setPendingRemoveId(user.id)}
+                          disabled={isRemoving}
+                          title={messages.users.removeFromUnitButton}
+                          className="text-destructive hover:text-destructive"
+                        >
+                          <UserMinus className="h-4 w-4" />
+                        </Button>
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -121,6 +127,17 @@ export default function UnitUsersPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <ConfirmDialog
+        open={pendingRemoveId !== null}
+        onOpenChange={(open) => { if (!open) setPendingRemoveId(null) }}
+        title={messages.confirm.removeUserFromUnitTitle}
+        description={messages.confirm.removeUserFromUnitDescription}
+        isPending={isRemoving}
+        onConfirm={() => {
+          if (pendingRemoveId) removeUser(pendingRemoveId)
+          setPendingRemoveId(null)
+        }}
+      />
     </PageContainer>
   )
 }

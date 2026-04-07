@@ -16,6 +16,7 @@ public class Product : LifeCycleEntity, IOrganizationScoped
     public Guid OrganizationId { get; private set; }
 
     // Navigation
+    public Category? Category { get; private set; }
     public MedicationDetails? MedicationDetails { get; private set; }
 
     private Product() { }

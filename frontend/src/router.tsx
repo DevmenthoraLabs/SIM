@@ -16,6 +16,7 @@ const InviteUserPage = lazy(() => import('@/pages/suporte/users/InviteUserPage')
 const UnitsPage = lazy(() => import('@/pages/units/UnitsPage'))
 const UnitUsersPage = lazy(() => import('@/pages/units/UnitUsersPage'))
 const UsersPage = lazy(() => import('@/pages/users/UsersPage'))
+const CategoriesPage = lazy(() => import('@/pages/categories/CategoriesPage'))
 const NotFoundPage = lazy(() => import('@/pages/not-found/NotFoundPage'))
 
 export const router = createBrowserRouter([
@@ -49,6 +50,7 @@ export const router = createBrowserRouter([
               { path: '/users', element: <UsersPage /> },
               { path: '/units', element: <UnitsPage /> },
               { path: '/units/:unitId/users', element: <UnitUsersPage /> },
+              { path: '/categories', element: <CategoriesPage /> },
             ],
           },
         ],

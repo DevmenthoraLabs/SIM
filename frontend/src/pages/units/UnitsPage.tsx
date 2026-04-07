@@ -1,12 +1,14 @@
+import { useState } from 'react'
 import { Link } from 'react-router'
 import { Building2, Pencil, Trash2, Users } from 'lucide-react'
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
+import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form'
+import { FloatingLabelInput } from '@/components/ui/FloatingLabelInput'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { Spinner } from '@/components/ui/Spinner'
 import { StatusBadge } from '@/components/ui/StatusBadge'
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import {
   Dialog,
   DialogBody,
@@ -26,8 +28,10 @@ export default function UnitsPage() {
     units, loading, serverError,
     isDialogOpen, editingUnit, form,
     openCreate, openEdit, closeDialog,
-    onSubmit, isSubmitting, deactivate,
+    onSubmit, isSubmitting, deactivate, isDeactivating,
   } = useUnits()
+
+  const [pendingDeactivateId, setPendingDeactivateId] = useState<string | null>(null)
 
   return (
     <PageContainer>
@@ -84,7 +88,7 @@ export default function UnitsPage() {
                         {unit.isActive && (
                           <Button
                             variant="ghost" size="sm"
-                            onClick={() => deactivate(unit.id)}
+                            onClick={() => setPendingDeactivateId(unit.id)}
                             title={messages.units.deactivateButton}
                             className="text-destructive hover:text-destructive"
                           >
@@ -117,30 +121,26 @@ export default function UnitsPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <FormField control={form.control} name="name" render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{messages.fields.nome}</FormLabel>
-                      <FormControl><Input placeholder={messages.fields.placeholderFarmacia} {...field} /></FormControl>
+                      <FormControl><FloatingLabelInput label={messages.fields.nome} {...field} /></FormControl>
                       <FormMessage />
                     </FormItem>
                   )} />
                   <FormField control={form.control} name="code" render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{messages.fields.codigo}</FormLabel>
-                      <FormControl><Input placeholder={messages.fields.placeholderCodigo} {...field} /></FormControl>
+                      <FormControl><FloatingLabelInput label={messages.fields.codigo} {...field} /></FormControl>
                       <FormMessage />
                     </FormItem>
                   )} />
                 </div>
                 <FormField control={form.control} name="address" render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{messages.fields.endereco} <span className="text-muted-foreground text-xs">{messages.fields.opcional}</span></FormLabel>
-                    <FormControl><Input placeholder={messages.fields.placeholderEndereco} {...field} /></FormControl>
+                    <FormControl><FloatingLabelInput label={`${messages.fields.endereco} ${messages.fields.opcional}`} {...field} /></FormControl>
                     <FormMessage />
                   </FormItem>
                 )} />
                 <FormField control={form.control} name="phone" render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{messages.fields.telefone} <span className="text-muted-foreground text-xs">{messages.fields.opcional}</span></FormLabel>
-                    <FormControl><Input placeholder={messages.fields.placeholderTelefone} {...field} /></FormControl>
+                    <FormControl><FloatingLabelInput label={`${messages.fields.telefone} ${messages.fields.opcional}`} {...field} /></FormControl>
                     <FormMessage />
                   </FormItem>
                 )} />
@@ -158,6 +158,17 @@ export default function UnitsPage() {
           </Form>
         </DialogContent>
       </Dialog>
+      <ConfirmDialog
+        open={pendingDeactivateId !== null}
+        onOpenChange={(open) => { if (!open) setPendingDeactivateId(null) }}
+        title={messages.confirm.deactivateUnitTitle}
+        description={messages.confirm.deactivateUnitDescription}
+        isPending={isDeactivating}
+        onConfirm={() => {
+          if (pendingDeactivateId) deactivate(pendingDeactivateId)
+          setPendingDeactivateId(null)
+        }}
+      />
     </PageContainer>
   )
 }

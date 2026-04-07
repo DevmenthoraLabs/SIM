@@ -5,4 +5,6 @@ export const queryKeys = {
   units: ['units'] as const,
   unit: (id: string) => ['units', id] as const,
   unitUsers: (unitId: string) => ['units', unitId, 'users'] as const,
+  categories: ['categories'] as const,
+  category: (id: string) => ['categories', id] as const,
 }

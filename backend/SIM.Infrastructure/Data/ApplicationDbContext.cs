@@ -23,6 +23,7 @@ public class ApplicationDbContext(
     public DbSet<UserUnit> UserUnits => Set<UserUnit>();
     public DbSet<Product> Products => Set<Product>();
     public DbSet<MedicationDetails> MedicationDetails => Set<MedicationDetails>();
+    public DbSet<Category> Categories => Set<Category>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
