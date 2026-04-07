@@ -20,13 +20,12 @@ public static class DependencyInjection
         var connectionString = configuration.GetConnectionString("DefaultConnection")
             ?? throw new InvalidOperationException("ConnectionStrings:DefaultConnection is not configured.");
 
-        // NpgsqlDataSource registered as singleton for Dapper (QueryAsync / QueryFirstOrDefaultAsync).
-        // EF Core uses the connection string directly via UseNpgsql.
+        // Single NpgsqlDataSource shared by EF Core and Dapper (QueryAsync / QueryFirstOrDefaultAsync).
         var dataSource = new NpgsqlDataSourceBuilder(connectionString).Build();
         services.AddSingleton(dataSource);
 
         services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseNpgsql(connectionString));
+            options.UseNpgsql(dataSource));
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<ApplicationDbContext>());
 

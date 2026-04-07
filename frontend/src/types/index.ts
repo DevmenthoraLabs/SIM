@@ -1,15 +1,21 @@
 import { z } from 'zod'
 
-const TokenResponseSchema = z.object({
+export const LoginResponseSchema = z.object({
   accessToken: z.string(),
   refreshToken: z.string(),
   expiresIn: z.number(),
+  role: z.string(),
+  organizationId: z.string(),
 })
-
-export const LoginResponseSchema = TokenResponseSchema
 export type LoginResponse = z.infer<typeof LoginResponseSchema>
 
-export const RefreshResponseSchema = TokenResponseSchema
+export const RefreshResponseSchema = z.object({
+  accessToken: z.string(),
+  refreshToken: z.string(),
+  expiresIn: z.number(),
+  role: z.string(),
+  organizationId: z.string(),
+})
 export type RefreshResponse = z.infer<typeof RefreshResponseSchema>
 
 export const OrganizationResponseSchema = z.object({
