@@ -36,7 +36,10 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
         builder.Property(x => x.RequiresBatchTracking)
             .IsRequired();
 
-        builder.Property(x => x.CategoryId);
+        builder.HasOne<Category>()
+            .WithMany()
+            .HasForeignKey(x => x.CategoryId)
+            .OnDelete(DeleteBehavior.SetNull);
 
         builder.Property(x => x.OrganizationId).IsRequired();
         builder.HasIndex(x => x.OrganizationId);

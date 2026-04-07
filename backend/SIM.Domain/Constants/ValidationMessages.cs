@@ -57,6 +57,19 @@ public static class ValidationMessages
     public const string CannotRemoveLastUnitAssignment = "Cannot remove the user's last active unit assignment.";
     public const string SuperAdminCannotBeAssignedToUnit = "SuperAdmin users cannot be assigned to a unit.";
 
+    // Category
+    public const string CategoryNameRequired = "Category name is required.";
+    public const string CategoryNameTooLong = "Category name must not exceed 100 characters.";
+    public const string CategoryNotFound = "Category not found.";
+    public const string CategoryInactive = "This category is inactive and cannot be edited.";
+    public const string CategoryNameAlreadyExists = "A category with this name already exists in the organization.";
+    public const string CategoryParentNotFound = "Parent category not found.";
+    public const string CategoryParentMustBeRoot = "Parent category must be a root category (no parent of its own).";
+    public const string CategoryCannotBeItsOwnParent = "A category cannot be its own parent.";
+    public const string CategoryParentInactive = "The parent category is inactive.";
+    public const string CategoryHasActiveProducts = "This category has active products assigned to it. Reassign them before deactivating.";
+    public const string CategoryHasActiveChildren = "This category has active sub-categories. Deactivate them before deactivating the parent.";
+
     // Product
     public const string ProductNameRequired = "Product name is required.";
     public const string ProductNameTooLong = "Product name must not exceed 200 characters.";

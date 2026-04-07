@@ -1,8 +1,10 @@
 using FluentValidation;
+using Microsoft.EntityFrameworkCore;
 using SIM.Application.Abstractions;
 using SIM.Application.Exceptions;
 using SIM.Application.ViewModels.Products;
 using SIM.Domain.Abstractions;
+using SIM.Domain.Constants;
 using SIM.Domain.Entities;
 
 namespace SIM.Application.Features.Products;
@@ -19,6 +21,18 @@ public class CreateProductCommandHandler(
         var validation = await validator.ValidateAsync(vm, cancellationToken);
         if (!validation.IsValid)
             throw new BusinessLogicException(string.Join(" ", validation.Errors.Select(e => e.ErrorMessage)));
+
+        if (vm.CategoryId is not null)
+        {
+            var category = await unitOfWork.Categories
+                .FirstOrDefaultAsync(c => c.Id == vm.CategoryId, cancellationToken);
+
+            if (category is null)
+                throw new BusinessLogicException(ValidationMessages.CategoryNotFound);
+
+            if (!category.IsActive)
+                throw new BusinessLogicException(ValidationMessages.CategoryInactive);
+        }
 
         var product = Product.CreateGeneric(
             vm.Name,
