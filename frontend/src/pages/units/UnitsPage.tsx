@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Link } from 'react-router'
 import { Building2, Pencil, Trash2, Users } from 'lucide-react'
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form'
@@ -7,6 +8,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { Spinner } from '@/components/ui/Spinner'
 import { StatusBadge } from '@/components/ui/StatusBadge'
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import {
   Dialog,
   DialogBody,
@@ -26,8 +28,10 @@ export default function UnitsPage() {
     units, loading, serverError,
     isDialogOpen, editingUnit, form,
     openCreate, openEdit, closeDialog,
-    onSubmit, isSubmitting, deactivate,
+    onSubmit, isSubmitting, deactivate, isDeactivating,
   } = useUnits()
+
+  const [pendingDeactivateId, setPendingDeactivateId] = useState<string | null>(null)
 
   return (
     <PageContainer>
@@ -84,7 +88,7 @@ export default function UnitsPage() {
                         {unit.isActive && (
                           <Button
                             variant="ghost" size="sm"
-                            onClick={() => deactivate(unit.id)}
+                            onClick={() => setPendingDeactivateId(unit.id)}
                             title={messages.units.deactivateButton}
                             className="text-destructive hover:text-destructive"
                           >
@@ -154,6 +158,17 @@ export default function UnitsPage() {
           </Form>
         </DialogContent>
       </Dialog>
+      <ConfirmDialog
+        open={pendingDeactivateId !== null}
+        onOpenChange={(open) => { if (!open) setPendingDeactivateId(null) }}
+        title={messages.confirm.deactivateUnitTitle}
+        description={messages.confirm.deactivateUnitDescription}
+        isPending={isDeactivating}
+        onConfirm={() => {
+          if (pendingDeactivateId) deactivate(pendingDeactivateId)
+          setPendingDeactivateId(null)
+        }}
+      />
     </PageContainer>
   )
 }

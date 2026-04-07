@@ -200,6 +200,17 @@ export const messages = {
     selectParent: 'Selecione uma categoria pai...',
   },
 
+  confirm: {
+    confirmButton: 'Confirmar',
+    confirming: 'Confirmando...',
+    deactivateUnitTitle: 'Desativar unidade',
+    deactivateUnitDescription: 'A unidade será desativada e deixará de aparecer nas operações do sistema. Esta ação não pode ser desfeita.',
+    deactivateCategoryTitle: 'Desativar categoria',
+    deactivateCategoryDescription: 'A categoria será desativada e não poderá ser vinculada a novos produtos. Esta ação não pode ser desfeita.',
+    removeUserFromUnitTitle: 'Remover usuário da unidade',
+    removeUserFromUnitDescription: 'O usuário perderá o acesso a esta unidade. Você poderá adicioná-lo novamente posteriormente.',
+  },
+
   breadcrumbs: {
     units: 'Unidades',
     users: 'Usuários',

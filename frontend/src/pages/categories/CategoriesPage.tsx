@@ -1,8 +1,10 @@
+import { useState } from 'react'
 import { Tag, Pencil, Trash2 } from 'lucide-react'
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form'
 import { FloatingLabelInput } from '@/components/ui/FloatingLabelInput'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { Spinner } from '@/components/ui/Spinner'
 import { StatusBadge } from '@/components/ui/StatusBadge'
@@ -34,7 +36,10 @@ export default function CategoriesPage() {
     onSubmit,
     isSubmitting,
     deactivate,
+    isDeactivating,
   } = useCategories()
+
+  const [pendingDeactivateId, setPendingDeactivateId] = useState<string | null>(null)
 
   function getParentName(parentId: string | null): string {
     if (!parentId) return '—'
@@ -106,7 +111,7 @@ export default function CategoriesPage() {
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => deactivate(category.id)}
+                            onClick={() => setPendingDeactivateId(category.id)}
                             title={messages.categories.deactivateButton}
                             className="text-destructive hover:text-destructive"
                           >
@@ -170,6 +175,17 @@ export default function CategoriesPage() {
           </Form>
         </DialogContent>
       </Dialog>
+      <ConfirmDialog
+        open={pendingDeactivateId !== null}
+        onOpenChange={(open) => { if (!open) setPendingDeactivateId(null) }}
+        title={messages.confirm.deactivateCategoryTitle}
+        description={messages.confirm.deactivateCategoryDescription}
+        isPending={isDeactivating}
+        onConfirm={() => {
+          if (pendingDeactivateId) deactivate(pendingDeactivateId)
+          setPendingDeactivateId(null)
+        }}
+      />
     </PageContainer>
   )
 }

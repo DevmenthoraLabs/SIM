@@ -16,6 +16,9 @@ public class DeactivateCategoryCommandHandler(IUnitOfWork unitOfWork)
         if (category is null)
             throw new BusinessLogicException(ValidationMessages.CategoryNotFound);
 
+        if (!category.IsActive)
+            throw new BusinessLogicException(ValidationMessages.CategoryAlreadyInactive);
+
         var hasActiveProducts = await unitOfWork.Products
             .AnyAsync(p => p.CategoryId == id && p.IsActive, cancellationToken);
         if (hasActiveProducts)

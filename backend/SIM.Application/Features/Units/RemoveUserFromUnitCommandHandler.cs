@@ -13,6 +13,14 @@ public class RemoveUserFromUnitCommandHandler(IUnitOfWork unitOfWork)
         Guid userId,
         CancellationToken cancellationToken = default)
     {
+        var unit = await unitOfWork.Units
+            .FirstOrDefaultAsync(u => u.Id == unitId, cancellationToken);
+        if (unit is null)
+            throw new NotFoundException(ValidationMessages.UnitNotFound);
+
+        if (!unit.IsActive)
+            throw new BusinessLogicException(ValidationMessages.UnitInactiveCannotManageUsers);
+
         var userUnit = await unitOfWork.UserUnits
             .FirstOrDefaultAsync(uu => uu.UnitId == unitId && uu.UserId == userId && uu.IsActive, cancellationToken);
         if (userUnit is null)
