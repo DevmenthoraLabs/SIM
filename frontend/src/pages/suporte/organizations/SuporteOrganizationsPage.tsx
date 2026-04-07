@@ -1,5 +1,5 @@
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
+import { FloatingLabelInput } from '@/components/ui/FloatingLabelInput'
 import { Button } from '@/components/ui/button'
 import { ShieldCheck } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
@@ -88,16 +88,14 @@ export default function SuporteOrganizationsPage() {
               <DialogBody className="space-y-4">
                 <FormField control={form.control} name="name" render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{messages.fields.nome}</FormLabel>
-                    <FormControl><Input placeholder={messages.fields.placeholderFarmacia} {...field} /></FormControl>
+                    <FormControl><FloatingLabelInput label={messages.fields.nome} {...field} /></FormControl>
                     <FormMessage />
                   </FormItem>
                 )} />
                 <div className="grid grid-cols-2 gap-4">
                   <FormField control={form.control} name="cnpj" render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{messages.fields.cnpj}</FormLabel>
-                      <FormControl><Input placeholder={messages.fields.placeholderCnpj} maxLength={14} {...field} /></FormControl>
+                      <FormControl><FloatingLabelInput label={messages.fields.cnpj} maxLength={14} {...field} /></FormControl>
                       <FormMessage />
                     </FormItem>
                   )} />

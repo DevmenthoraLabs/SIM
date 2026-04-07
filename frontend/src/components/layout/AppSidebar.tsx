@@ -5,6 +5,7 @@ import {
   LayoutDashboard,
   LogOut,
   ShieldCheck,
+  Tag,
   UserPlus,
   Users,
 } from 'lucide-react'
@@ -70,6 +71,10 @@ export default function AppSidebar() {
             <NavLink to="/users" className={navItem}>
               <Users className="h-4 w-4" />
               {messages.nav.usuarios}
+            </NavLink>
+            <NavLink to="/categories" className={navItem}>
+              <Tag className="h-4 w-4" />
+              {messages.nav.categorias}
             </NavLink>
           </>
         )}

@@ -1,6 +1,6 @@
 import { LinkIcon } from 'lucide-react'
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
+import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form'
+import { FloatingLabelInput } from '@/components/ui/FloatingLabelInput'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { messages } from '@/lib/messages'
@@ -58,9 +58,8 @@ export default function AuthCallbackPage() {
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{messages.fields.novaSegura}</FormLabel>
                       <FormControl>
-                        <Input type="password" placeholder={messages.auth.passwordPlaceholder} {...field} />
+                        <FloatingLabelInput type="password" label={messages.fields.novaSegura} {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -71,9 +70,8 @@ export default function AuthCallbackPage() {
                   name="confirmPassword"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{messages.fields.confirmarSenha}</FormLabel>
                       <FormControl>
-                        <Input type="password" placeholder={messages.auth.passwordPlaceholder} {...field} />
+                        <FloatingLabelInput type="password" label={messages.fields.confirmarSenha} {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

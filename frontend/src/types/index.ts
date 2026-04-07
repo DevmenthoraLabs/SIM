@@ -82,3 +82,24 @@ export interface UpdateUnitRequest {
   address?: string
   phone?: string
 }
+
+// ── Category ──────────────────────────────────────────────────────────────────
+
+export interface CategoryResponse {
+  id: string
+  name: string
+  parentId: string | null
+  organizationId: string
+  createdAt: string
+  isActive: boolean
+}
+
+export interface CreateCategoryRequest {
+  name: string
+  parentId?: string
+}
+
+export interface UpdateCategoryRequest {
+  name: string
+  parentId?: string
+}
