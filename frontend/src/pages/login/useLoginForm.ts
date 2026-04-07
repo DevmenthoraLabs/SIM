@@ -4,11 +4,12 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useNavigate } from 'react-router'
 import { z } from 'zod'
 import { extractErrorMessage } from '@/lib/api'
+import { messages } from '@/lib/messages'
 import { useAuth } from '@/hooks/useAuth'
 
 const loginSchema = z.object({
-  email: z.string().email('Informe um email válido.'),
-  password: z.string().min(1, 'Senha é obrigatória.'),
+  email: z.string().email(messages.validation.emailInvalid),
+  password: z.string().min(1, messages.validation.passwordRequired),
 })
 
 type LoginFormValues = z.infer<typeof loginSchema>

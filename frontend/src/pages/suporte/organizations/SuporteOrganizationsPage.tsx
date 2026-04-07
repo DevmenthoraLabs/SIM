@@ -1,134 +1,73 @@
-import { Link } from 'react-router'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { ShieldCheck } from 'lucide-react'
+import { Card, CardContent } from '@/components/ui/card'
+import { EmptyState } from '@/components/ui/EmptyState'
+import { Spinner } from '@/components/ui/Spinner'
+import { StatusBadge } from '@/components/ui/StatusBadge'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+  Dialog,
+  DialogBody,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import PageContainer from '@/components/layout/PageContainer'
+import PageHeader from '@/components/layout/PageHeader'
+import { messages } from '@/lib/messages'
 import { useSuporteOrganizations } from './useSuporteOrganizations'
 
 export default function SuporteOrganizationsPage() {
   const {
-    organizations,
-    loading,
-    serverError,
-    showForm,
-    setShowForm,
-    form,
-    onSubmit,
-    isSubmitting,
+    organizations, loading, serverError,
+    isDialogOpen, setIsDialogOpen, closeDialog,
+    form, onSubmit, isSubmitting,
   } = useSuporteOrganizations()
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-8 space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">Organizações</h1>
-        <div className="flex gap-2">
-          <Button asChild variant="outline">
-            <Link to="/suporte/users/invite">Convidar usuário</Link>
-          </Button>
-          <Button onClick={() => setShowForm((v) => !v)} variant={showForm ? 'outline' : 'default'}>
-            {showForm ? 'Cancelar' : 'Nova organização'}
-          </Button>
-        </div>
-      </div>
+    <PageContainer>
+      <PageHeader
+        title={messages.pages.organizationsTitle}
+        description={messages.pages.organizationsDescription}
+        actions={<Button onClick={() => setIsDialogOpen(true)}>{messages.organizations.newButton}</Button>}
+      />
 
-      {showForm && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Nova organização</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Form {...form}>
-              <form onSubmit={onSubmit} className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Nome</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Farmácia Central" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="cnpj"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>CNPJ</FormLabel>
-                      <FormControl>
-                        <Input placeholder="00000000000000" maxLength={14} {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="type"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Tipo</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Selecione o tipo" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="Private">Privada</SelectItem>
-                          <SelectItem value="Public">Pública</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {serverError && (
-                  <p className="text-sm text-destructive">{serverError}</p>
-                )}
-
-                <Button type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? 'Criando...' : 'Criar organização'}
-                </Button>
-              </form>
-            </Form>
-          </CardContent>
-        </Card>
-      )}
-
-      <Card>
-        <CardContent className="pt-4">
+      <Card className="overflow-hidden">
+        <CardContent className="p-0">
           {loading ? (
-            <p className="text-sm text-muted-foreground py-4 text-center">Carregando...</p>
+            <div className="flex items-center justify-center gap-2 py-12">
+              <Spinner />
+              <span className="text-sm text-muted-foreground">{messages.common.loading}</span>
+            </div>
           ) : organizations.length === 0 ? (
-            <p className="text-sm text-muted-foreground py-4 text-center">
-              Nenhuma organização cadastrada.
-            </p>
+            <EmptyState
+              icon={ShieldCheck}
+              title={messages.common.noData}
+              description={messages.common.noDataHint}
+              action={<Button onClick={() => setIsDialogOpen(true)}>{messages.organizations.createSubmit}</Button>}
+            />
           ) : (
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b text-muted-foreground">
-                  <th className="text-left py-2 font-medium">Nome</th>
-                  <th className="text-left py-2 font-medium">CNPJ</th>
-                  <th className="text-left py-2 font-medium">Tipo</th>
-                  <th className="text-left py-2 font-medium">Status</th>
+                <tr className="border-b bg-muted/40 text-muted-foreground">
+                  <th className="text-left px-4 py-3 font-medium">{messages.fields.nome}</th>
+                  <th className="text-left px-4 py-3 font-medium">{messages.fields.cnpj}</th>
+                  <th className="text-left px-4 py-3 font-medium">{messages.fields.tipo}</th>
+                  <th className="text-left px-4 py-3 font-medium">{messages.fields.status}</th>
                 </tr>
               </thead>
               <tbody>
                 {organizations.map((org) => (
-                  <tr key={org.id} className="border-b last:border-0">
-                    <td className="py-2">{org.name}</td>
-                    <td className="py-2 font-mono text-xs">{org.cnpj}</td>
-                    <td className="py-2">{org.type === 'Public' ? 'Pública' : 'Privada'}</td>
-                    <td className="py-2">
-                      <span className={`text-xs font-medium ${org.isActive ? 'text-green-600' : 'text-destructive'}`}>
-                        {org.isActive ? 'Ativa' : 'Inativa'}
-                      </span>
+                  <tr key={org.id} className="border-b last:border-0 transition-colors hover:bg-muted/30">
+                    <td className="px-4 py-3 font-medium">{org.name}</td>
+                    <td className="px-4 py-3 font-mono text-xs text-muted-foreground">{org.cnpj}</td>
+                    <td className="px-4 py-3">{org.type === 'Public' ? messages.organizations.typePublica : messages.organizations.typePrivada}</td>
+                    <td className="px-4 py-3">
+                      <StatusBadge active={org.isActive} activeLabel={messages.status.ativa} inactiveLabel={messages.status.inativa} />
                     </td>
                   </tr>
                 ))}
@@ -137,6 +76,59 @@ export default function SuporteOrganizationsPage() {
           )}
         </CardContent>
       </Card>
-    </div>
+
+      <Dialog open={isDialogOpen} onOpenChange={(open) => { if (!open) closeDialog() }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{messages.organizations.dialogTitle}</DialogTitle>
+            <DialogDescription>{messages.organizations.dialogDescription}</DialogDescription>
+          </DialogHeader>
+          <Form {...form}>
+            <form onSubmit={onSubmit}>
+              <DialogBody className="space-y-4">
+                <FormField control={form.control} name="name" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{messages.fields.nome}</FormLabel>
+                    <FormControl><Input placeholder={messages.fields.placeholderFarmacia} {...field} /></FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField control={form.control} name="cnpj" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{messages.fields.cnpj}</FormLabel>
+                      <FormControl><Input placeholder={messages.fields.placeholderCnpj} maxLength={14} {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                  <FormField control={form.control} name="type" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{messages.fields.tipo}</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger><SelectValue placeholder={messages.fields.selectTipo} /></SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="Private">{messages.organizations.typePrivada}</SelectItem>
+                          <SelectItem value="Public">{messages.organizations.typePublica}</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                </div>
+                {serverError && <p className="text-sm text-destructive">{serverError}</p>}
+              </DialogBody>
+              <DialogFooter>
+                <Button type="button" variant="ghost" onClick={closeDialog}>{messages.common.cancel}</Button>
+                <Button type="submit" disabled={isSubmitting}>
+                  {isSubmitting ? messages.organizations.createSubmitting : messages.organizations.createSubmit}
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
+    </PageContainer>
   )
 }

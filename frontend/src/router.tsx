@@ -3,6 +3,7 @@ import { lazy } from 'react'
 import { createBrowserRouter } from 'react-router'
 import PrivateRoute from '@/components/layout/PrivateRoute'
 import SuperAdminRoute from '@/components/layout/SuperAdminRoute'
+import AdminRoute from '@/components/layout/AdminRoute'
 import AppLayout from '@/components/layout/AppLayout'
 
 const LoginPage = lazy(() => import('@/pages/login/LoginPage'))
@@ -12,6 +13,9 @@ const SuporteOrganizationsPage = lazy(
   () => import('@/pages/suporte/organizations/SuporteOrganizationsPage')
 )
 const InviteUserPage = lazy(() => import('@/pages/suporte/users/InviteUserPage'))
+const UnitsPage = lazy(() => import('@/pages/units/UnitsPage'))
+const UnitUsersPage = lazy(() => import('@/pages/units/UnitUsersPage'))
+const UsersPage = lazy(() => import('@/pages/users/UsersPage'))
 const NotFoundPage = lazy(() => import('@/pages/not-found/NotFoundPage'))
 
 export const router = createBrowserRouter([
@@ -28,11 +32,23 @@ export const router = createBrowserRouter([
         element: <AppLayout />,
         children: [
           { path: '/', element: <DashboardPage /> },
+
+          // SuperAdmin area
           {
             element: <SuperAdminRoute />,
             children: [
               { path: '/suporte/organizations', element: <SuporteOrganizationsPage /> },
               { path: '/suporte/users/invite', element: <InviteUserPage /> },
+            ],
+          },
+
+          // Admin area
+          {
+            element: <AdminRoute />,
+            children: [
+              { path: '/users', element: <UsersPage /> },
+              { path: '/units', element: <UnitsPage /> },
+              { path: '/units/:unitId/users', element: <UnitUsersPage /> },
             ],
           },
         ],

@@ -1,5 +1,4 @@
 import axios from 'axios'
-import { extractRoleFromToken, extractOrganizationIdFromToken } from './jwtDecode'
 import { tokenStorage } from './tokenStorage'
 import { useAuthStore } from '../store/authStore'
 import { RefreshResponseSchema } from '@/types'
@@ -84,16 +83,15 @@ api.interceptors.response.use(
       const { data } = await authClient.post('/api/auth/refresh', { refreshToken })
       const parsed = RefreshResponseSchema.parse(data)
       const email = tokenStorage.getEmail() ?? ''
-      const role = extractRoleFromToken(parsed.accessToken)
-      const organizationId = extractOrganizationIdFromToken(parsed.accessToken)
       tokenStorage.save(
         parsed.accessToken,
         parsed.refreshToken,
         parsed.expiresIn,
         email,
-        role,
-        organizationId
+        parsed.role,
+        parsed.organizationId
       )
+      useAuthStore.getState().setUser({ email, role: parsed.role, organizationId: parsed.organizationId })
       processQueue(null, parsed.accessToken)
       originalRequest.headers.Authorization = `Bearer ${parsed.accessToken}`
       return api(originalRequest)

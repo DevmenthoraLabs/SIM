@@ -5,7 +5,7 @@ using SIM.Domain.Exceptions;
 
 namespace SIM.Domain.Entities;
 
-public class Organization : BaseEntity
+public class Organization : LifeCycleEntity
 {
     public string Name { get; private set; } = string.Empty;
     public string Cnpj { get; private set; } = string.Empty;

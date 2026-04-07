@@ -46,15 +46,31 @@ public class InviteUserCommandHandler(
         if (emailTaken)
             throw new BusinessLogicException(ValidationMessages.EmailAlreadyExists);
 
+        if (vm.UnitIds?.Count > 0)
+        {
+            var validUnitCount = await unitOfWork.Units
+                .CountAsync(u => vm.UnitIds.Contains(u.Id) && u.IsActive, cancellationToken);
+
+            if (validUnitCount != vm.UnitIds.Count)
+                throw new BusinessLogicException(ValidationMessages.UnitNotFoundOrInactive);
+        }
+
         var userId = await identityAdminService.InviteUserAsync(vm.Email, cancellationToken);
 
-        var userProfile = UserProfile.Create(userId, vm.FullName, vm.Email, vm.Role, vm.OrganizationId, vm.UnitId);
-
+        var userProfile = UserProfile.Create(userId, vm.FullName, vm.Email, vm.Role, vm.OrganizationId);
         unitOfWork.UserProfiles.Add(userProfile);
-        await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        var assignedUnitIds = vm.UnitIds ?? [];
+        foreach (var unitId in assignedUnitIds)
+        {
+            var userUnit = UserUnit.Create(userProfile.Id, unitId, vm.OrganizationId);
+            unitOfWork.UserUnits.Add(userUnit);
+        }
+
+        await unitOfWork.SaveChangesAsync(CancellationToken.None);
 
         return new UserViewModel(
             userProfile.Id, userProfile.FullName, userProfile.Email, userProfile.Role,
-            userProfile.OrganizationId, userProfile.UnitId, userProfile.CreatedAt, userProfile.IsActive);
+            userProfile.OrganizationId, assignedUnitIds.AsReadOnly(), userProfile.CreatedAt, userProfile.IsActive);
     }
 }

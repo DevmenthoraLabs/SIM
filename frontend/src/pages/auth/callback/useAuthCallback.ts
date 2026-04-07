@@ -4,22 +4,19 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { extractErrorMessage } from '@/lib/api'
+import { messages } from '@/lib/messages'
 import { authService } from '@/services/authService'
 import { tokenStorage } from '@/lib/tokenStorage'
-import {
-  extractRoleFromToken,
-  extractEmailFromToken,
-  extractOrganizationIdFromToken,
-} from '@/lib/jwtDecode'
+import { extractEmailFromToken } from '@/lib/jwtDecode'
 import { useAuthStore } from '@/store/authStore'
 
 const schema = z
   .object({
-    password: z.string().min(8, 'Senha deve ter pelo menos 8 caracteres.'),
-    confirmPassword: z.string().min(1, 'Confirmação é obrigatória.'),
+    password: z.string().min(8, messages.validation.passwordTooShort),
+    confirmPassword: z.string().min(1, messages.validation.passwordConfirmRequired),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: 'As senhas não coincidem.',
+    message: messages.validation.passwordMismatch,
     path: ['confirmPassword'],
   })
 
@@ -55,18 +52,11 @@ export function useAuthCallback() {
 
     // Store the session from the invite/recovery fragment immediately.
     // This authenticates the user so the set-password request can use their Bearer token.
+    // Store only the tokens — role/org are not available in the fragment JWT.
+    // After set-password the user is redirected to /login for a full authenticated session.
     const email = extractEmailFromToken(session.accessToken)
-    const role = extractRoleFromToken(session.accessToken)
-    const organizationId = extractOrganizationIdFromToken(session.accessToken)
-    tokenStorage.save(
-      session.accessToken,
-      session.refreshToken,
-      session.expiresIn,
-      email,
-      role,
-      organizationId
-    )
-    setUser({ email, role, organizationId })
+    tokenStorage.save(session.accessToken, session.refreshToken, session.expiresIn, email, '', '')
+    setUser({ email, role: '', organizationId: '' })
 
     // Clean the fragment from the URL without triggering a navigation.
     window.history.replaceState(null, '', window.location.pathname)
@@ -85,10 +75,10 @@ export function useAuthCallback() {
       setServerError(null)
       // User is now authenticated — the api instance sends the Bearer token automatically.
       await authService.setPassword(values.password)
-      navigate('/', { replace: true })
+      navigate('/login', { replace: true })
     } catch (error) {
       setServerError(
-        extractErrorMessage(error, 'Não foi possível definir a senha. O link pode ter expirado.')
+        extractErrorMessage(error, messages.auth.setPasswordError)
       )
     }
   }

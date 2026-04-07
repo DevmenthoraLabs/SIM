@@ -22,6 +22,35 @@ namespace SIM.Infrastructure.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("SIM.Domain.Entities.MedicationDetails", b =>
+                {
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ActiveIngredient")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<string>("Concentration")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("GenericName")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<bool>("IsControlled")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Presentation")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.HasKey("ProductId");
+
+                    b.ToTable("medication_details", (string)null);
+                });
+
             modelBuilder.Entity("SIM.Domain.Entities.Organization", b =>
                 {
                     b.Property<Guid>("Id")
@@ -64,11 +93,17 @@ namespace SIM.Infrastructure.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid");
 
+                    b.Property<string>("BarCode")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<Guid?>("CategoryId")
+                        .HasColumnType("uuid");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)");
 
@@ -83,6 +118,14 @@ namespace SIM.Infrastructure.Migrations
                     b.Property<Guid>("OrganizationId")
                         .HasColumnType("uuid");
 
+                    b.Property<bool>("RequiresBatchTracking")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -90,7 +133,54 @@ namespace SIM.Infrastructure.Migrations
 
                     b.HasIndex("OrganizationId");
 
+                    b.HasIndex("OrganizationId", "BarCode")
+                        .IsUnique()
+                        .HasFilter("\"BarCode\" IS NOT NULL");
+
                     b.ToTable("products", (string)null);
+                });
+
+            modelBuilder.Entity("SIM.Domain.Entities.Unit", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Address")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Phone")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrganizationId", "Code")
+                        .IsUnique();
+
+                    b.ToTable("units", (string)null);
                 });
 
             modelBuilder.Entity("SIM.Domain.Entities.UserProfile", b =>
@@ -122,9 +212,6 @@ namespace SIM.Infrastructure.Migrations
                         .HasMaxLength(30)
                         .HasColumnType("character varying(30)");
 
-                    b.Property<Guid?>("UnitId")
-                        .HasColumnType("uuid");
-
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -138,7 +225,63 @@ namespace SIM.Infrastructure.Migrations
                     b.ToTable("user_profiles", (string)null);
                 });
 
+            modelBuilder.Entity("SIM.Domain.Entities.UserUnit", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("UnitId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrganizationId");
+
+                    b.HasIndex("UnitId");
+
+                    b.HasIndex("UserId", "UnitId")
+                        .IsUnique()
+                        .HasFilter("user_units.IsActive = true");
+
+                    b.ToTable("user_units", (string)null);
+                });
+
+            modelBuilder.Entity("SIM.Domain.Entities.MedicationDetails", b =>
+                {
+                    b.HasOne("SIM.Domain.Entities.Product", "Product")
+                        .WithOne("MedicationDetails")
+                        .HasForeignKey("SIM.Domain.Entities.MedicationDetails", "ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+                });
+
             modelBuilder.Entity("SIM.Domain.Entities.Product", b =>
+                {
+                    b.HasOne("SIM.Domain.Entities.Organization", null)
+                        .WithMany()
+                        .HasForeignKey("OrganizationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("SIM.Domain.Entities.Unit", b =>
                 {
                     b.HasOne("SIM.Domain.Entities.Organization", null)
                         .WithMany()
@@ -156,6 +299,36 @@ namespace SIM.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Organization");
+                });
+
+            modelBuilder.Entity("SIM.Domain.Entities.UserUnit", b =>
+                {
+                    b.HasOne("SIM.Domain.Entities.Organization", null)
+                        .WithMany()
+                        .HasForeignKey("OrganizationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("SIM.Domain.Entities.Unit", "Unit")
+                        .WithMany()
+                        .HasForeignKey("UnitId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("SIM.Domain.Entities.UserProfile", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Unit");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("SIM.Domain.Entities.Product", b =>
+                {
+                    b.Navigation("MedicationDetails");
                 });
 #pragma warning restore 612, 618
         }

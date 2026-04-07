@@ -16,7 +16,6 @@ public class UserProfile : IOrganizationScoped
     public string Email { get; private set; } = string.Empty;
     public UserRole Role { get; private set; }
     public Guid OrganizationId { get; private set; }
-    public Guid? UnitId { get; private set; }
     public DateTime CreatedAt { get; private set; }
     public DateTime? UpdatedAt { get; private set; }
     public bool IsActive { get; private set; }
@@ -31,8 +30,7 @@ public class UserProfile : IOrganizationScoped
         string fullName,
         string email,
         UserRole role,
-        Guid organizationId,
-        Guid? unitId = null)
+        Guid organizationId)
     {
         if (supabaseUserId == Guid.Empty)
             throw new DomainValidationException(ValidationMessages.UserIdRequired);
@@ -55,7 +53,6 @@ public class UserProfile : IOrganizationScoped
             Email = email.Trim().ToLowerInvariant(),
             Role = role,
             OrganizationId = organizationId,
-            UnitId = unitId,
             CreatedAt = DateTime.UtcNow,
             IsActive = true
         };

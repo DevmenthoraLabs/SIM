@@ -1,7 +1,9 @@
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
+import { messages } from '@/lib/messages'
 import { useLoginForm } from './useLoginForm'
 
 export default function LoginPage() {
@@ -10,17 +12,20 @@ export default function LoginPage() {
   return (
     <div className="relative min-h-screen flex bg-background">
 
-      {/* Theme toggle — top right corner */}
+      {/* Theme toggle */}
       <div className="absolute top-4 right-4 z-10">
         <ThemeToggle />
       </div>
 
-      {/* Left panel — branding, hidden on small screens */}
+      {/* Left panel — branding */}
       <div className="hidden lg:flex lg:w-1/2 flex-col items-center justify-center bg-gray-950 p-10">
-        <div className="flex flex-col items-center gap-3 text-center">
-          <span className="text-5xl font-bold tracking-tight text-white">SIM</span>
+        <div className="flex flex-col items-center gap-4 text-center">
+          <div className="h-16 w-16 rounded-2xl bg-white/10 flex items-center justify-center">
+            <span className="text-2xl font-bold text-white">S</span>
+          </div>
+          <span className="text-4xl font-bold tracking-tight text-white">{messages.nav.sim}</span>
           <p className="text-sm text-gray-400 tracking-wide uppercase">
-            Sistema Integrado de Medicamentos
+            {messages.auth.appTagline}
           </p>
         </div>
       </div>
@@ -30,56 +35,66 @@ export default function LoginPage() {
         <div className="mx-auto w-full max-w-sm space-y-6">
 
           <div className="space-y-2 text-center">
+            {/* Mobile-only brand mark */}
+            <div className="lg:hidden flex justify-center mb-4">
+              <div className="h-12 w-12 rounded-xl bg-primary flex items-center justify-center">
+                <span className="text-lg font-bold text-primary-foreground">S</span>
+              </div>
+            </div>
             <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-              Bem-vindo ao SIM
+              {messages.auth.loginTitle}
             </h1>
             <p className="text-sm text-muted-foreground">
-              Entre com suas credenciais para acessar o sistema.
+              {messages.auth.loginDescription}
             </p>
           </div>
 
-          <Form {...form}>
-            <form onSubmit={onSubmit} className="space-y-4">
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email</FormLabel>
-                    <FormControl>
-                      <Input type="email" placeholder="voce@exemplo.com" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+          <Card>
+            <CardContent className="pt-6">
+              <Form {...form}>
+                <form onSubmit={onSubmit} className="space-y-4">
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{messages.fields.email}</FormLabel>
+                        <FormControl>
+                          <Input type="email" placeholder={messages.fields.placeholderEmail} {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Senha</FormLabel>
-                    <FormControl>
-                      <Input type="password" placeholder="••••••••" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                  <FormField
+                    control={form.control}
+                    name="password"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{messages.fields.senha}</FormLabel>
+                        <FormControl>
+                          <Input type="password" placeholder={messages.auth.passwordPlaceholder} {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-              {serverError && (
-                <p className="text-sm text-destructive">{serverError}</p>
-              )}
+                  {serverError && (
+                    <p className="text-sm text-destructive">{serverError}</p>
+                  )}
 
-              <Button type="submit" className="w-full" disabled={isSubmitting}>
-                {isSubmitting ? 'Entrando...' : 'Entrar'}
-              </Button>
-            </form>
-          </Form>
+                  <Button type="submit" className="w-full" disabled={isSubmitting}>
+                    {isSubmitting ? messages.auth.loginSubmitting : messages.auth.loginSubmit}
+                  </Button>
+                </form>
+              </Form>
+            </CardContent>
+          </Card>
 
           <p className="text-center text-xs text-muted-foreground">
-            Problemas para acessar? Entre em contato com o suporte SIM.
+            {messages.auth.loginSupport}
           </p>
         </div>
       </div>

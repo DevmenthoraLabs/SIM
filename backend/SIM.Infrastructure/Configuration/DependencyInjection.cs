@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using Npgsql;
 using SIM.Application.Abstractions.Services;
 using SIM.Domain.Abstractions;
 using SIM.Infrastructure.Auth;
@@ -19,8 +20,12 @@ public static class DependencyInjection
         var connectionString = configuration.GetConnectionString("DefaultConnection")
             ?? throw new InvalidOperationException("ConnectionStrings:DefaultConnection is not configured.");
 
+        // Single NpgsqlDataSource shared by EF Core and Dapper (QueryAsync / QueryFirstOrDefaultAsync).
+        var dataSource = new NpgsqlDataSourceBuilder(connectionString).Build();
+        services.AddSingleton(dataSource);
+
         services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseNpgsql(connectionString));
+            options.UseNpgsql(dataSource));
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<ApplicationDbContext>());
 

@@ -10,11 +10,19 @@ public class GetUserByIdQuery(IUnitOfWork unitOfWork)
         Guid id,
         CancellationToken cancellationToken = default)
     {
-        return await unitOfWork.UserProfiles
+        var user = await unitOfWork.UserProfiles
             .Where(u => u.Id == id)
-            .Select(u => new UserViewModel(
-                u.Id, u.FullName, u.Email, u.Role,
-                u.OrganizationId, u.UnitId, u.CreatedAt, u.IsActive))
             .FirstOrDefaultAsync(cancellationToken);
+
+        if (user is null) return null;
+
+        var unitIds = await unitOfWork.UserUnits
+            .Where(uu => uu.UserId == id && uu.IsActive)
+            .Select(uu => uu.UnitId)
+            .ToListAsync(cancellationToken);
+
+        return new UserViewModel(
+            user.Id, user.FullName, user.Email, user.Role,
+            user.OrganizationId, unitIds.AsReadOnly(), user.CreatedAt, user.IsActive);
     }
 }

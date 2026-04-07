@@ -30,7 +30,6 @@ public class UserProfileConfiguration : IEntityTypeConfiguration<UserProfile>
             .HasMaxLength(30);
 
         builder.Property(x => x.OrganizationId).IsRequired();
-        builder.Property(x => x.UnitId);
         builder.Property(x => x.CreatedAt).IsRequired();
         builder.Property(x => x.IsActive).IsRequired();
 

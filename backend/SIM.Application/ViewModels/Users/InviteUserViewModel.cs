@@ -7,4 +7,4 @@ public record InviteUserViewModel(
     string FullName,
     UserRole Role,
     Guid OrganizationId,
-    Guid? UnitId);
+    List<Guid>? UnitIds);

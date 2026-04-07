@@ -5,13 +5,14 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { z } from 'zod'
 import { extractErrorMessage } from '@/lib/api'
+import { messages } from '@/lib/messages'
 import { queryKeys } from '@/lib/queryKeys'
 import { organizationService } from '@/services/organizationService'
 
 const createOrgSchema = z.object({
-  name: z.string().min(1, 'Nome é obrigatório.').max(200, 'Nome muito longo.'),
-  cnpj: z.string().regex(/^\d{14}$/, 'CNPJ deve conter 14 dígitos numéricos.'),
-  type: z.enum(['Public', 'Private'], { error: 'Tipo é obrigatório.' }),
+  name: z.string().min(1, messages.validation.unitNameRequired).max(200, messages.validation.unitNameTooLong),
+  cnpj: z.string().regex(/^\d{14}$/, messages.validation.cnpjInvalid),
+  type: z.enum(['Public', 'Private'], { error: messages.validation.orgTypeRequired }),
 })
 
 type CreateOrgFormValues = z.infer<typeof createOrgSchema>
@@ -19,7 +20,7 @@ type CreateOrgFormValues = z.infer<typeof createOrgSchema>
 export function useSuporteOrganizations() {
   const queryClient = useQueryClient()
   const [serverError, setServerError] = useState<string | null>(null)
-  const [showForm, setShowForm] = useState(false)
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
 
   const { data: organizations = [], isLoading } = useQuery({
     queryKey: queryKeys.organizations,
@@ -31,38 +32,31 @@ export function useSuporteOrganizations() {
     defaultValues: { name: '', cnpj: '', type: 'Private' },
   })
 
+  function closeDialog() {
+    setIsDialogOpen(false)
+    form.reset()
+    setServerError(null)
+  }
+
   const createMutation = useMutation({
     mutationFn: organizationService.create,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.organizations })
-      form.reset()
-      setShowForm(false)
-      setServerError(null)
-      toast.success('Organização criada com sucesso.')
+      closeDialog()
+      toast.success(messages.organizations.createSuccess)
     },
-    onError: (error) => {
-      setServerError(
-        extractErrorMessage(
-          error,
-          'Erro ao criar organização. Verifique os dados e tente novamente.'
-        )
-      )
-    },
+    onError: (error) => setServerError(extractErrorMessage(error, messages.organizations.createError)),
   })
-
-  async function onSubmit(values: CreateOrgFormValues): Promise<void> {
-    setServerError(null)
-    createMutation.mutate(values)
-  }
 
   return {
     organizations,
     loading: isLoading,
     serverError,
-    showForm,
-    setShowForm,
+    isDialogOpen,
+    setIsDialogOpen,
+    closeDialog,
     form,
-    onSubmit: form.handleSubmit(onSubmit),
+    onSubmit: form.handleSubmit((values) => createMutation.mutate(values)),
     isSubmitting: createMutation.isPending,
   }
 }
