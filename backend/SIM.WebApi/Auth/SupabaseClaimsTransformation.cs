@@ -7,24 +7,22 @@ using System.Security.Claims;
 namespace SIM.WebApi.Auth;
 
 /// <summary>
-/// Maps provider-specific JWT claims into the application's standard claim types.
-/// Also loads the user's active UnitIds from the database, cached per user for 60 seconds.
+/// Maps the Supabase JWT's 'sub' claim into the application's standard claim types
+/// by loading the user's profile (role, organizationId) and active UnitIds from the database.
+/// Results are cached per user for 60 seconds to avoid a DB hit on every request.
 ///
-/// Currently reads 'sim_role' and 'sim_organization_id' from Supabase's
-/// Custom Access Token Hook. To switch providers (e.g. Keycloak), replace
-/// this class with one that reads the new provider's claim names and maps
-/// them to the same SimClaimTypes / ClaimTypes.Role targets.
+/// Supabase is used only as an identity provider — the JWT only needs to carry 'sub'.
+/// No Custom Access Token Hook is required. To switch providers (e.g. Keycloak), replace
+/// this class with one that reads the new provider's subject claim and maps it to the
+/// same SimClaimTypes / ClaimTypes.Role targets.
 /// </summary>
 public class SupabaseClaimsTransformation(
     IUnitOfWork unitOfWork,
     IMemoryCache cache) : IClaimsTransformation
 {
-    private static readonly TimeSpan UnitIdsCacheDuration = TimeSpan.FromSeconds(60);
+    private static readonly TimeSpan CacheDuration = TimeSpan.FromSeconds(60);
 
-    // Source claim names as defined in the Supabase Custom Access Token Hook.
-    // These are the only Supabase-specific values in the application.
-    private const string SourceRoleClaim = "sim_role";
-    private const string SourceOrgClaim = "sim_organization_id";
+    private record UserAuthCache(string Role, Guid OrganizationId, string UnitIdsCsv);
 
     public async Task<ClaimsPrincipal> TransformAsync(ClaimsPrincipal principal)
     {
@@ -32,47 +30,45 @@ public class SupabaseClaimsTransformation(
         if (principal.HasClaim(c => c.Type == SimClaimTypes.OrganizationId))
             return principal;
 
-        var simRole = principal.FindFirstValue(SourceRoleClaim);
-        var orgId = principal.FindFirstValue(SourceOrgClaim);
+        var userId = principal.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (!Guid.TryParse(userId, out var userGuid))
+            return principal;
 
-        if (simRole is null || orgId is null)
+        var cacheKey = $"user_auth:{userGuid}";
+
+        var cached = await cache.GetOrCreateAsync(cacheKey, async entry =>
+        {
+            entry.AbsoluteExpirationRelativeToNow = CacheDuration;
+
+            const string sql = """
+                SELECT up."Role", up."OrganizationId",
+                       COALESCE(STRING_AGG(uu."UnitId"::text, ','), '') AS "UnitIdsCsv"
+                FROM user_profiles up
+                LEFT JOIN user_units uu ON uu."UserId" = up."Id"
+                    AND uu."IsActive" = true
+                    AND uu."OrganizationId" = up."OrganizationId"
+                WHERE up."Id" = @UserId AND up."IsActive" = true
+                GROUP BY up."Role", up."OrganizationId"
+                """;
+
+            var row = await unitOfWork.QueryFirstOrDefaultAsync<(string Role, Guid OrganizationId, string UnitIdsCsv)>(
+                sql, new { UserId = userGuid });
+
+            if (row == default)
+                return null;
+
+            return new UserAuthCache(row.Role, row.OrganizationId, row.UnitIdsCsv);
+        });
+
+        if (cached is null)
             return principal;
 
         var identity = (ClaimsIdentity)principal.Identity!;
-        identity.AddClaim(new Claim(ClaimTypes.Role, simRole));
-        identity.AddClaim(new Claim(SimClaimTypes.OrganizationId, orgId));
+        identity.AddClaim(new Claim(ClaimTypes.Role, cached.Role));
+        identity.AddClaim(new Claim(SimClaimTypes.OrganizationId, cached.OrganizationId.ToString()));
 
-        // Load active UnitIds for operational roles (Admin and SuperAdmin skip — they have cross-unit access)
-        if (simRole is not (Roles.Admin or Roles.SuperAdmin))
-        {
-            var userId = principal.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            if (Guid.TryParse(userId, out var userGuid) && Guid.TryParse(orgId, out var orgGuid))
-            {
-                var cacheKey = $"unit_ids:{userGuid}";
-
-                var csv = await cache.GetOrCreateAsync(cacheKey, async entry =>
-                {
-                    entry.AbsoluteExpirationRelativeToNow = UnitIdsCacheDuration;
-
-                    const string sql = """
-                        SELECT "UnitId"
-                        FROM user_units
-                        WHERE "UserId" = @UserId
-                          AND "IsActive" = true
-                          AND "OrganizationId" = @OrganizationId
-                        """;
-
-                    var unitIds = await unitOfWork.QueryAsync<Guid>(
-                        sql, new { UserId = userGuid, OrganizationId = orgGuid });
-
-                    return string.Join(',', unitIds);
-                });
-
-                if (!string.IsNullOrEmpty(csv))
-                    identity.AddClaim(new Claim(SimClaimTypes.UnitIds, csv));
-            }
-        }
+        if (!string.IsNullOrEmpty(cached.UnitIdsCsv))
+            identity.AddClaim(new Claim(SimClaimTypes.UnitIds, cached.UnitIdsCsv));
 
         return principal;
     }

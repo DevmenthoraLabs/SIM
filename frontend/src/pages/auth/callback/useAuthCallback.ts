@@ -7,11 +7,7 @@ import { extractErrorMessage } from '@/lib/api'
 import { messages } from '@/lib/messages'
 import { authService } from '@/services/authService'
 import { tokenStorage } from '@/lib/tokenStorage'
-import {
-  extractRoleFromToken,
-  extractEmailFromToken,
-  extractOrganizationIdFromToken,
-} from '@/lib/jwtDecode'
+import { extractEmailFromToken } from '@/lib/jwtDecode'
 import { useAuthStore } from '@/store/authStore'
 
 const schema = z
@@ -56,18 +52,11 @@ export function useAuthCallback() {
 
     // Store the session from the invite/recovery fragment immediately.
     // This authenticates the user so the set-password request can use their Bearer token.
+    // Store only the tokens — role/org are not available in the fragment JWT.
+    // After set-password the user is redirected to /login for a full authenticated session.
     const email = extractEmailFromToken(session.accessToken)
-    const role = extractRoleFromToken(session.accessToken)
-    const organizationId = extractOrganizationIdFromToken(session.accessToken)
-    tokenStorage.save(
-      session.accessToken,
-      session.refreshToken,
-      session.expiresIn,
-      email,
-      role,
-      organizationId
-    )
-    setUser({ email, role, organizationId })
+    tokenStorage.save(session.accessToken, session.refreshToken, session.expiresIn, email, '', '')
+    setUser({ email, role: '', organizationId: '' })
 
     // Clean the fragment from the URL without triggering a navigation.
     window.history.replaceState(null, '', window.location.pathname)
@@ -86,7 +75,7 @@ export function useAuthCallback() {
       setServerError(null)
       // User is now authenticated — the api instance sends the Bearer token automatically.
       await authService.setPassword(values.password)
-      navigate('/', { replace: true })
+      navigate('/login', { replace: true })
     } catch (error) {
       setServerError(
         extractErrorMessage(error, messages.auth.setPasswordError)
