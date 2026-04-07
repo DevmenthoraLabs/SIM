@@ -47,6 +47,8 @@ public static class ValidationMessages
     public const string UnitPhoneTooLong = "Phone must not exceed 20 characters.";
     public const string UnitNotFound = "Unit not found.";
     public const string UnitInactive = "This unit is inactive and cannot be edited.";
+    public const string UnitAlreadyInactive = "This unit is already inactive.";
+    public const string UnitInactiveCannotManageUsers = "This unit is inactive. User assignments cannot be modified.";
     public const string UnitNotFoundOrInactive = "One or more units were not found or are inactive.";
     public const string UnitRequiredForRole = "At least one unit must be assigned for this role.";
     public const string UnitIdRequired = "Unit ID is required.";
@@ -62,6 +64,7 @@ public static class ValidationMessages
     public const string CategoryNameTooLong = "Category name must not exceed 100 characters.";
     public const string CategoryNotFound = "Category not found.";
     public const string CategoryInactive = "This category is inactive and cannot be edited.";
+    public const string CategoryAlreadyInactive = "This category is already inactive.";
     public const string CategoryNameAlreadyExists = "A category with this name already exists in the organization.";
     public const string CategoryParentNotFound = "Parent category not found.";
     public const string CategoryParentMustBeRoot = "Parent category must be a root category (no parent of its own).";

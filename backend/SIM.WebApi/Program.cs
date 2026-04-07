@@ -14,10 +14,17 @@ using System.Text.Json.Serialization;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Host.UseSerilog((context, config) =>
+{
     config
         .ReadFrom.Configuration(context.Configuration)
-        .Enrich.FromLogContext()
-        .WriteTo.Console(new CompactJsonFormatter()));
+        .Enrich.FromLogContext();
+
+    if (context.HostingEnvironment.IsDevelopment())
+        config.WriteTo.Console(outputTemplate:
+            "[{Timestamp:HH:mm:ss} {Level:u3}] {SourceContext}{NewLine}          {Message:lj}{NewLine}{Exception}");
+    else
+        config.WriteTo.Console(new CompactJsonFormatter());
+});
 
 builder.Services.AddSimCors(builder.Configuration);
 builder.Services.AddApplication();

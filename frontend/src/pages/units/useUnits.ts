@@ -106,5 +106,6 @@ export function useUnits() {
     onSubmit: form.handleSubmit(onSubmit),
     isSubmitting: createMutation.isPending || updateMutation.isPending,
     deactivate: (id: string) => deactivateMutation.mutate(id),
+    isDeactivating: deactivateMutation.isPending,
   }
 }

@@ -16,6 +16,9 @@ public class DeactivateUnitCommandHandler(IUnitOfWork unitOfWork)
         if (unit is null)
             throw new BusinessLogicException(ValidationMessages.UnitNotFound);
 
+        if (!unit.IsActive)
+            throw new BusinessLogicException(ValidationMessages.UnitAlreadyInactive);
+
         unit.Deactivate();
         await unitOfWork.SaveChangesAsync(cancellationToken);
     }

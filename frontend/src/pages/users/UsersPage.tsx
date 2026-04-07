@@ -72,7 +72,7 @@ export default function UsersPage() {
                     <td className="px-4 py-3 font-medium">{user.fullName}</td>
                     <td className="px-4 py-3 text-muted-foreground">{user.email}</td>
                     <td className="px-4 py-3">
-                      <Select value={user.role} onValueChange={(role) => updateRole(user.id, role)} disabled={isUpdatingRole}>
+                      <Select value={user.role} onValueChange={(role) => updateRole(user.id, role)} disabled={isUpdatingRole || !user.isActive}>
                         <SelectTrigger className="h-7 w-44 text-xs">
                           <SelectValue />
                         </SelectTrigger>
