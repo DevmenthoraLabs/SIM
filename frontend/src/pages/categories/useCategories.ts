@@ -87,6 +87,16 @@ export function useCategories() {
       toast.error(extractErrorMessage(error, messages.categories.deactivateError)),
   })
 
+  const reactivateMutation = useMutation({
+    mutationFn: categoryService.reactivate,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.categories })
+      toast.success(messages.categories.reactivateSuccess)
+    },
+    onError: (error) =>
+      toast.error(extractErrorMessage(error, messages.categories.reactivateError)),
+  })
+
   async function onSubmit(values: CategoryFormValues): Promise<void> {
     setServerError(null)
     const payload: UpdateCategoryPayload = {
@@ -114,6 +124,8 @@ export function useCategories() {
     isSubmitting: createMutation.isPending || updateMutation.isPending,
     deactivate: (id: string) => deactivateMutation.mutate(id),
     isDeactivating: deactivateMutation.isPending,
+    reactivate: (id: string) => reactivateMutation.mutate(id),
+    isReactivating: reactivateMutation.isPending,
   }
 }
 

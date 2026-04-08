@@ -7,4 +7,6 @@ export const queryKeys = {
   unitUsers: (unitId: string) => ['units', unitId, 'users'] as const,
   categories: ['categories'] as const,
   category: (id: string) => ['categories', id] as const,
+  medications: ['medications'] as const,
+  medication: (id: string) => ['medications', id] as const,
 }

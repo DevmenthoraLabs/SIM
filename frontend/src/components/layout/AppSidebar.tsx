@@ -4,6 +4,7 @@ import {
   ChevronDown,
   LayoutDashboard,
   LogOut,
+  Pill,
   ShieldCheck,
   Tag,
   UserPlus,
@@ -41,6 +42,7 @@ export default function AppSidebar() {
   const { user, signOut } = useAuth()
   const isAdmin = user?.role === ROLES.Admin
   const isSuperAdmin = user?.role === ROLES.SuperAdmin
+  const canSeeCatalog = !isSuperAdmin
 
   return (
     <aside className="w-60 shrink-0 border-r bg-card flex flex-col h-screen sticky top-0">
@@ -61,6 +63,20 @@ export default function AppSidebar() {
           {messages.nav.dashboard}
         </NavLink>
 
+        {canSeeCatalog && (
+          <>
+            <SectionLabel>{messages.nav.catalogo}</SectionLabel>
+            <NavLink to="/categories" className={navItem}>
+              <Tag className="h-4 w-4" />
+              {messages.nav.categorias}
+            </NavLink>
+            <NavLink to="/medications" className={navItem}>
+              <Pill className="h-4 w-4" />
+              {messages.nav.medicamentos}
+            </NavLink>
+          </>
+        )}
+
         {isAdmin && (
           <>
             <SectionLabel>{messages.nav.administracao}</SectionLabel>
@@ -71,10 +87,6 @@ export default function AppSidebar() {
             <NavLink to="/users" className={navItem}>
               <Users className="h-4 w-4" />
               {messages.nav.usuarios}
-            </NavLink>
-            <NavLink to="/categories" className={navItem}>
-              <Tag className="h-4 w-4" />
-              {messages.nav.categorias}
             </NavLink>
           </>
         )}
