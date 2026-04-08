@@ -1,25 +1,26 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SIM.Application.Features.Categories;
-using SIM.Application.ViewModels.Categories;
+using SIM.Application.Features.Medications;
+using SIM.Application.ViewModels.Medications;
 using SIM.Domain.Constants;
 
 namespace SIM.WebApi.Controllers;
 
 /// <summary>
-/// Product category management endpoints.
-/// Write operations require Admin. Read operations are available to all authenticated roles.
+/// Medication management endpoints. Medications are products with Type = Medication
+/// and an associated MedicationDetails satellite record.
+/// Write operations require Admin or StockManager. Read operations are available to all authenticated roles.
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
 [Authorize]
-public class CategoriesController : ControllerBase
+public class MedicationsController : ControllerBase
 {
     [HttpPost]
-    [Authorize(Roles = Roles.Admin)]
+    [Authorize(Roles = Roles.AdminOrStockManager)]
     public async Task<IActionResult> Create(
-        [FromBody] CreateCategoryViewModel vm,
-        [FromServices] CreateCategoryCommandHandler handler,
+        [FromBody] CreateMedicationViewModel vm,
+        [FromServices] CreateMedicationCommandHandler handler,
         CancellationToken cancellationToken)
     {
         var result = await handler.HandleAsync(vm, cancellationToken);
@@ -30,7 +31,7 @@ public class CategoriesController : ControllerBase
     [Authorize(Roles = Roles.AllRoles)]
     public async Task<IActionResult> GetById(
         Guid id,
-        [FromServices] GetCategoryByIdQuery query,
+        [FromServices] GetMedicationByIdQuery query,
         CancellationToken cancellationToken)
     {
         var result = await query.HandleAsync(id, cancellationToken);
@@ -40,7 +41,7 @@ public class CategoriesController : ControllerBase
     [HttpGet]
     [Authorize(Roles = Roles.AllRoles)]
     public async Task<IActionResult> GetAll(
-        [FromServices] GetAllCategoriesQuery query,
+        [FromServices] GetAllMedicationsQuery query,
         CancellationToken cancellationToken)
     {
         var result = await query.HandleAsync(cancellationToken);
@@ -48,11 +49,11 @@ public class CategoriesController : ControllerBase
     }
 
     [HttpPut("{id:guid}")]
-    [Authorize(Roles = Roles.Admin)]
+    [Authorize(Roles = Roles.AdminOrStockManager)]
     public async Task<IActionResult> Update(
         Guid id,
-        [FromBody] UpdateCategoryViewModel vm,
-        [FromServices] UpdateCategoryCommandHandler handler,
+        [FromBody] UpdateMedicationViewModel vm,
+        [FromServices] UpdateMedicationCommandHandler handler,
         CancellationToken cancellationToken)
     {
         var result = await handler.HandleAsync(id, vm, cancellationToken);
@@ -63,7 +64,7 @@ public class CategoriesController : ControllerBase
     [Authorize(Roles = Roles.Admin)]
     public async Task<IActionResult> Deactivate(
         Guid id,
-        [FromServices] DeactivateCategoryCommandHandler handler,
+        [FromServices] DeactivateMedicationCommandHandler handler,
         CancellationToken cancellationToken)
     {
         await handler.HandleAsync(id, cancellationToken);
@@ -74,7 +75,7 @@ public class CategoriesController : ControllerBase
     [Authorize(Roles = Roles.Admin)]
     public async Task<IActionResult> Reactivate(
         Guid id,
-        [FromServices] ReactivateCategoryCommandHandler handler,
+        [FromServices] ReactivateMedicationCommandHandler handler,
         CancellationToken cancellationToken)
     {
         await handler.HandleAsync(id, cancellationToken);

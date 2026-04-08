@@ -65,6 +65,7 @@ public static class ValidationMessages
     public const string CategoryNotFound = "Category not found.";
     public const string CategoryInactive = "This category is inactive and cannot be edited.";
     public const string CategoryAlreadyInactive = "This category is already inactive.";
+    public const string CategoryAlreadyActive = "This category is already active.";
     public const string CategoryNameAlreadyExists = "A category with this name already exists in the organization.";
     public const string CategoryParentNotFound = "Parent category not found.";
     public const string CategoryParentMustBeRoot = "Parent category must be a root category (no parent of its own).";
@@ -80,4 +81,14 @@ public static class ValidationMessages
     public const string ProductDescriptionTooLong = "Product description must not exceed 1000 characters.";
     public const string ProductBarCodeTooLong = "Bar code must not exceed 50 characters.";
     public const string ProductTypeInvalid = "Type must be a valid ProductType.";
+
+    // Medication
+    public const string MedicationNotFound = "Medication not found.";
+    public const string MedicationInactive = "This medication is inactive and cannot be edited.";
+    public const string MedicationAlreadyInactive = "This medication is already inactive.";
+    public const string MedicationAlreadyActive = "This medication is already active.";
+    public const string MedicationGenericNameTooLong = "Generic name must not exceed 300 characters.";
+    public const string MedicationActiveIngredientTooLong = "Active ingredient must not exceed 300 characters.";
+    public const string MedicationPresentationTooLong = "Presentation must not exceed 100 characters.";
+    public const string MedicationConcentrationTooLong = "Concentration must not exceed 50 characters.";
 }

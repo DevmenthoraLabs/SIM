@@ -83,6 +83,52 @@ export interface UpdateUnitRequest {
   phone?: string
 }
 
+// ── Medication ────────────────────────────────────────────────────────────────
+
+export interface MedicationDetailsResponse {
+  genericName: string | null
+  activeIngredient: string | null
+  presentation: string | null
+  concentration: string | null
+  isControlled: boolean
+}
+
+export interface MedicationResponse {
+  id: string
+  name: string
+  description: string | null
+  barCode: string | null
+  categoryId: string | null
+  categoryName: string | null
+  createdAt: string
+  isActive: boolean
+  details: MedicationDetailsResponse | null
+}
+
+export interface CreateMedicationRequest {
+  name: string
+  description?: string
+  barCode?: string
+  categoryId?: string
+  genericName?: string
+  activeIngredient?: string
+  presentation?: string
+  concentration?: string
+  isControlled: boolean
+}
+
+export interface UpdateMedicationRequest {
+  name: string
+  description?: string
+  barCode?: string
+  categoryId?: string
+  genericName?: string
+  activeIngredient?: string
+  presentation?: string
+  concentration?: string
+  isControlled: boolean
+}
+
 // ── Category ──────────────────────────────────────────────────────────────────
 
 export interface CategoryResponse {

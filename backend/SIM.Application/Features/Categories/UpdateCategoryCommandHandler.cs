@@ -29,7 +29,7 @@ public class UpdateCategoryCommandHandler(
             throw new BusinessLogicException(ValidationMessages.CategoryInactive);
 
         var nameConflict = await unitOfWork.Categories
-            .AnyAsync(c => c.Name == vm.Name.Trim() && c.Id != id, cancellationToken);
+            .AnyAsync(c => c.Name == vm.Name.Trim() && c.Id != id && c.IsActive, cancellationToken);
         if (nameConflict)
             throw new BusinessLogicException(ValidationMessages.CategoryNameAlreadyExists);
 

@@ -33,7 +33,7 @@ export default function UnitUsersPage() {
   const [pendingRemoveId, setPendingRemoveId] = useState<string | null>(null)
 
   return (
-    <PageContainer>
+    <PageContainer wide>
       <PageHeader
         title={unit?.name ?? messages.common.loading}
         description={unit ? `${messages.units.headerCodePrefix} ${unit.code}` : undefined}
