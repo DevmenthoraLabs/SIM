@@ -16,4 +16,7 @@ export const categoryService = {
 
   deactivate: (id: string): Promise<void> =>
     api.delete(`/api/categories/${id}`).then(() => undefined),
+
+  reactivate: (id: string): Promise<void> =>
+    api.put(`/api/categories/${id}/reactivate`).then(() => undefined),
 }

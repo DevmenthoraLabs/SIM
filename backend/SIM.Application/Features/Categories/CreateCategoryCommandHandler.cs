@@ -25,7 +25,7 @@ public class CreateCategoryCommandHandler(
         var organizationId = currentUserService.OrganizationId!.Value;
 
         var nameExists = await unitOfWork.Categories
-            .AnyAsync(c => c.Name == vm.Name.Trim(), cancellationToken);
+            .AnyAsync(c => c.Name == vm.Name.Trim() && c.IsActive, cancellationToken);
         if (nameExists)
             throw new BusinessLogicException(ValidationMessages.CategoryNameAlreadyExists);
 

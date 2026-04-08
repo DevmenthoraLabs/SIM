@@ -88,7 +88,12 @@ public class ApplicationDbContext(
 
         var entries = ChangeTracker.Entries()
             .Where(e => e.State is EntityState.Added or EntityState.Modified or EntityState.Deleted)
-            .Select(e => $"{e.State} {e.Entity.GetType().Name} (Id={e.Property("Id").CurrentValue})")
+            .Select(e =>
+            {
+                var pk = e.Metadata.FindPrimaryKey()?.Properties.FirstOrDefault();
+                var pkValue = pk is not null ? e.Property(pk.Name).CurrentValue : "?";
+                return $"{e.State} {e.Entity.GetType().Name} ({pk?.Name}={pkValue})";
+            })
             .ToList();
 
         logger.LogInformation("SaveChangesAsync — pending: [{Entries}]", string.Join(", ", entries));

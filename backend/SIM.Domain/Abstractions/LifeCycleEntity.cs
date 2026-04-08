@@ -18,4 +18,10 @@ public abstract class LifeCycleEntity : BaseEntity
         IsActive = false;
         UpdatedAt = DateTime.UtcNow;
     }
+
+    public void Reactivate()
+    {
+        IsActive = true;
+        UpdatedAt = DateTime.UtcNow;
+    }
 }

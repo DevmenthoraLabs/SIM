@@ -94,6 +94,20 @@ public class Product : LifeCycleEntity, IOrganizationScoped
     }
 
     /// <summary>
+    /// Updates the satellite MedicationDetails. Only valid when Type == Medication.
+    /// </summary>
+    public void UpdateMedicationDetails(
+        string? genericName,
+        string? activeIngredient,
+        string? presentation,
+        string? concentration,
+        bool isControlled)
+    {
+        MedicationDetails!.Update(genericName, activeIngredient, presentation, concentration, isControlled);
+        UpdatedAt = DateTime.UtcNow;
+    }
+
+    /// <summary>
     /// Enables batch tracking for this product. Once enabled, it can never be disabled.
     /// </summary>
     public void EnableBatchTracking()

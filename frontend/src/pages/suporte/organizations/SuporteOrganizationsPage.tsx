@@ -29,7 +29,7 @@ export default function SuporteOrganizationsPage() {
   } = useSuporteOrganizations()
 
   return (
-    <PageContainer>
+    <PageContainer wide>
       <PageHeader
         title={messages.pages.organizationsTitle}
         description={messages.pages.organizationsDescription}

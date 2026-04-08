@@ -35,7 +35,7 @@ export default function UsersPage() {
   const selectedUnitIds: string[] = form.watch('unitIds') ?? []
 
   return (
-    <PageContainer>
+    <PageContainer wide>
       <PageHeader
         title={messages.pages.usersTitle}
         description={messages.pages.usersDescription}
