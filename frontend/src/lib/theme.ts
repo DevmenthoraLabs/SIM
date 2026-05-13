@@ -15,8 +15,3 @@ export function getSystemTheme(): 'light' | 'dark' {
     ? 'dark'
     : 'light'
 }
-
-export function applyTheme(theme: Theme): void {
-  const resolved = theme === 'system' ? getSystemTheme() : theme
-  document.documentElement.classList.toggle('dark', resolved === 'dark')
-}
