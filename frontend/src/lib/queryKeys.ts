@@ -9,4 +9,8 @@ export const queryKeys = {
   category: (id: string) => ['categories', id] as const,
   medications: ['medications'] as const,
   medication: (id: string) => ['medications', id] as const,
+  suppliers: ['suppliers'] as const,
+  supplier: (id: string) => ['suppliers', id] as const,
+  batches: ['batches'] as const,
+  batchesByProduct: (productId: string) => ['batches', 'product', productId] as const,
 }

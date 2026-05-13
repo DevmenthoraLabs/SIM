@@ -82,6 +82,43 @@ public static class ValidationMessages
     public const string ProductBarCodeTooLong = "Bar code must not exceed 50 characters.";
     public const string ProductTypeInvalid = "Type must be a valid ProductType.";
 
+    // Batch
+    public const string BatchProductRequired = "Product is required.";
+    public const string BatchSupplierRequired = "Supplier is required.";
+    public const string BatchLotNumberRequired = "Lot number is required.";
+    public const string BatchLotNumberTooLong = "Lot number must not exceed 100 characters.";
+    public const string BatchLotNumberAlreadyExists = "A batch with this lot number already exists for this product.";
+    public const string BatchExpiryDateRequired = "Expiry date is required.";
+    public const string BatchManufacturingDateMustBeBeforeExpiry = "Manufacturing date must be before the expiry date.";
+    public const string BatchQuantityMustBePositive = "Quantity must be greater than zero.";
+    public const string BatchUnitCostCannotBeNegative = "Unit cost cannot be negative.";
+    public const string BatchNotFound = "Batch not found.";
+    public const string BatchAlreadyInactive = "This batch is already inactive.";
+    public const string BatchAlreadyActive = "This batch is already active.";
+    public const string BatchProductNotFound = "Product not found.";
+    public const string BatchProductDoesNotRequireBatchTracking = "This product does not require batch tracking.";
+    public const string BatchSupplierNotFound = "Supplier not found.";
+    public const string BatchSupplierInactive = "The selected supplier is inactive.";
+
+    // Supplier
+    public const string SupplierNameRequired = "Supplier name is required.";
+    public const string SupplierNameTooLong = "Supplier name must not exceed 200 characters.";
+    public const string SupplierCnpjRequired = "CNPJ is required.";
+    public const string SupplierCnpjInvalid = "CNPJ must contain exactly 14 numeric digits.";
+    public const string SupplierCnpjAlreadyExists = "A supplier with this CNPJ already exists in the organization.";
+    public const string SupplierEmailInvalid = "Email must be a valid address.";
+    public const string SupplierEmailTooLong = "Email must not exceed 200 characters.";
+    public const string SupplierPhoneTooLong = "Phone must not exceed 20 characters.";
+    public const string SupplierContactNameTooLong = "Contact name must not exceed 200 characters.";
+    public const string SupplierStreetTooLong = "Street must not exceed 200 characters.";
+    public const string SupplierCityTooLong = "City must not exceed 100 characters.";
+    public const string SupplierStateTooLong = "State must not exceed 50 characters.";
+    public const string SupplierZipCodeTooLong = "Zip code must not exceed 20 characters.";
+    public const string SupplierNotFound = "Supplier not found.";
+    public const string SupplierInactive = "This supplier is inactive and cannot be edited.";
+    public const string SupplierAlreadyInactive = "This supplier is already inactive.";
+    public const string SupplierAlreadyActive = "This supplier is already active.";
+
     // Medication
     public const string MedicationNotFound = "Medication not found.";
     public const string MedicationInactive = "This medication is inactive and cannot be edited.";

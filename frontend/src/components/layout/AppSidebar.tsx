@@ -4,9 +4,11 @@ import {
   ChevronDown,
   LayoutDashboard,
   LogOut,
+  Package,
   Pill,
   ShieldCheck,
   Tag,
+  Truck,
   UserPlus,
   Users,
 } from 'lucide-react'
@@ -73,6 +75,16 @@ export default function AppSidebar() {
             <NavLink to="/medications" className={navItem}>
               <Pill className="h-4 w-4" />
               {messages.nav.medicamentos}
+            </NavLink>
+
+            <SectionLabel>{messages.nav.estoque}</SectionLabel>
+            <NavLink to="/suppliers" className={navItem}>
+              <Truck className="h-4 w-4" />
+              {messages.nav.fornecedores}
+            </NavLink>
+            <NavLink to="/batches" className={navItem}>
+              <Package className="h-4 w-4" />
+              {messages.nav.lotes}
             </NavLink>
           </>
         )}

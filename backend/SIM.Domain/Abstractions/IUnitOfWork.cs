@@ -12,6 +12,8 @@ public interface IUnitOfWork
     DbSet<Product> Products { get; }
     DbSet<MedicationDetails> MedicationDetails { get; }
     DbSet<Category> Categories { get; }
+    DbSet<Supplier> Suppliers { get; }
+    DbSet<Batch> Batches { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 

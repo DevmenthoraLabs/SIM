@@ -15,6 +15,9 @@ public static class Roles
     public const string AdminOrStockManager =
         Admin + "," + StockManager;
 
+    public const string AdminOrStockManagerOrReceivingOperator =
+        Admin + "," + StockManager + "," + ReceivingOperator;
+
     public const string AllRoles =
         SuperAdmin + "," + Admin + "," + Pharmacist + "," + StockManager + "," + ReceivingOperator;
 }
