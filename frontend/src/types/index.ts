@@ -149,3 +149,71 @@ export interface UpdateCategoryRequest {
   name: string
   parentId?: string
 }
+
+// ── Supplier ──────────────────────────────────────────────────────────────────
+
+export interface SupplierResponse {
+  id: string
+  name: string
+  cnpj: string
+  phone: string | null
+  email: string | null
+  contactName: string | null
+  street: string | null
+  city: string | null
+  state: string | null
+  zipCode: string | null
+  createdAt: string
+  isActive: boolean
+}
+
+export interface CreateSupplierRequest {
+  name: string
+  cnpj: string
+  phone?: string
+  email?: string
+  contactName?: string
+  street?: string
+  city?: string
+  state?: string
+  zipCode?: string
+}
+
+export interface UpdateSupplierRequest {
+  name: string
+  cnpj: string
+  phone?: string
+  email?: string
+  contactName?: string
+  street?: string
+  city?: string
+  state?: string
+  zipCode?: string
+}
+
+// ── Batch ─────────────────────────────────────────────────────────────────────
+
+export interface BatchResponse {
+  id: string
+  productId: string
+  productName: string
+  supplierId: string
+  supplierName: string
+  lotNumber: string
+  manufacturingDate: string | null
+  expiryDate: string
+  quantity: number
+  unitCost: number | null
+  createdAt: string
+  isActive: boolean
+}
+
+export interface RegisterBatchRequest {
+  productId: string
+  supplierId: string
+  lotNumber: string
+  manufacturingDate?: string
+  expiryDate: string
+  quantity: number
+  unitCost?: number
+}

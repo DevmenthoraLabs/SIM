@@ -24,6 +24,8 @@ public class ApplicationDbContext(
     public DbSet<Product> Products => Set<Product>();
     public DbSet<MedicationDetails> MedicationDetails => Set<MedicationDetails>();
     public DbSet<Category> Categories => Set<Category>();
+    public DbSet<Supplier> Suppliers => Set<Supplier>();
+    public DbSet<Batch> Batches => Set<Batch>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -31,13 +33,17 @@ public class ApplicationDbContext(
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
         ApplyOrganizationScopedFilters(modelBuilder);
 
-        // MedicationDetails is a satellite of Product (ProductId as PK, internal factory).
-        // It doesn't carry OrganizationId directly, so the global filter is applied
-        // via the Product navigation to match Product's own org scope filter.
+        // MedicationDetails and Batch do not carry OrganizationId directly.
+        // Their scope is enforced via the Product navigation to match Product's own org filter.
         modelBuilder.Entity<MedicationDetails>()
             .HasQueryFilter(md =>
                 currentUserService.IsSuperAdmin ||
                 md.Product!.OrganizationId == currentUserService.OrganizationId);
+
+        modelBuilder.Entity<Batch>()
+            .HasQueryFilter(b =>
+                currentUserService.IsSuperAdmin ||
+                b.Product!.OrganizationId == currentUserService.OrganizationId);
     }
 
     /// <summary>
