@@ -5,8 +5,8 @@ import { ThemeToggle } from '@/components/ui/ThemeToggle'
 import { useLoginForm } from './useLoginForm'
 import imagebackLight from "../../assets/image_background.png"
 import imagebackDark from "../../assets/image_background_dark.png"
-import imageLoginLight from "../../assets/image_Login.png"
-import imageLoginDark from "../../assets/image_Login_dark.png"
+import imageLoginLight from "../../assets/image_login.png"
+import imageLoginDark from "../../assets/image_login_dark.png"
 import { useTheme } from '@/hooks/useTheme'
 
 export default function LoginPage() {
