@@ -21,21 +21,28 @@ const batchSchema = z
       .max(100, messages.validation.batchLotNumberTooLong),
     manufacturingDate: z.string().optional(),
     expiryDate: z.string().min(1, messages.validation.batchExpiryDateRequired),
-    quantity: z.coerce
-      .number({ invalid_type_error: messages.validation.batchQuantityPositive })
-      .positive(messages.validation.batchQuantityPositive),
-    unitCost: z.preprocess(
-      (v) => (v === '' || v === null || v === undefined ? undefined : Number(v)),
-      z.number().min(0, messages.validation.batchUnitCostNonNegative).optional(),
-    ),
+    quantity: z.string().min(1, messages.validation.batchQuantityPositive),
+    unitCost: z.string().optional(),
   })
   .refine(
     (data) =>
       !data.manufacturingDate || !data.expiryDate || data.manufacturingDate < data.expiryDate,
-    {
-      message: messages.validation.batchManufacturingBeforeExpiry,
-      path: ['manufacturingDate'],
+    { message: messages.validation.batchManufacturingBeforeExpiry, path: ['manufacturingDate'] },
+  )
+  .refine(
+    (data) => {
+      const qty = parseFloat(data.quantity)
+      return !isNaN(qty) && qty > 0
     },
+    { message: messages.validation.batchQuantityPositive, path: ['quantity'] },
+  )
+  .refine(
+    (data) => {
+      if (!data.unitCost || data.unitCost === '') return true
+      const cost = parseFloat(data.unitCost)
+      return !isNaN(cost) && cost >= 0
+    },
+    { message: messages.validation.batchUnitCostNonNegative, path: ['unitCost'] },
   )
 
 type BatchFormValues = z.infer<typeof batchSchema>
@@ -46,8 +53,8 @@ const defaultValues: BatchFormValues = {
   lotNumber: '',
   manufacturingDate: '',
   expiryDate: '',
-  quantity: '' as unknown as number,
-  unitCost: undefined,
+  quantity: '',
+  unitCost: '',
 }
 
 export function useBatches() {
@@ -132,8 +139,8 @@ export function useBatches() {
       lotNumber: values.lotNumber,
       manufacturingDate: values.manufacturingDate || undefined,
       expiryDate: values.expiryDate,
-      quantity: values.quantity,
-      unitCost: values.unitCost,
+      quantity: parseFloat(values.quantity),
+      unitCost: values.unitCost ? parseFloat(values.unitCost) : undefined,
     })
   }
 
