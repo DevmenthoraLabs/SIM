@@ -1,14 +1,12 @@
-import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form'
-import { FloatingLabelInput } from '@/components/ui/FloatingLabelInput'
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
-import { messages } from '@/lib/messages'
 import { useLoginForm } from './useLoginForm'
-import imagebackLight from '../../assets/image_background.png'
-import imagebackDark from '../../assets/image_background_dark.png'
-import imageLoginLight from '../../assets/image_Login.png'
-import imageLoginDark from '../../assets/image_login_dark.png'
+import imagebackLight from "../../assets/image_background.png"
+import imagebackDark from "../../assets/image_background_dark.png"
+import imageLoginLight from "../../assets/image_Login.png"
+import imageLoginDark from "../../assets/image_Login_dark.png"
 import { useTheme } from '@/hooks/useTheme'
 
 export default function LoginPage() {
@@ -17,17 +15,9 @@ export default function LoginPage() {
 
   const isDark = resolvedTheme?.includes('dark')
 
-  const imageClass = isDark
-    ? 'w-50'
-    : 'w-40'
-
-  const imageback = resolvedTheme?.includes('dark')
-    ? imagebackDark
-    : imagebackLight
-
-  const imageLogin = resolvedTheme?.includes('dark')
-    ? imageLoginDark
-    : imageLoginLight
+  const imageback = isDark ? imagebackDark : imagebackLight
+  const imageLogin = isDark ? imageLoginDark : imageLoginLight
+  const imageClass = isDark ? 'w-48' : 'w-40'
 
   return (
     <div className="relative min-h-screen flex bg-background">
@@ -37,7 +27,7 @@ export default function LoginPage() {
         <ThemeToggle />
       </div>
 
-      {/* Left panel — branding, hidden on small screens */}
+      {/* Left panel */}
       <div
         className="hidden lg:flex lg:w-1/2 flex-col items-center justify-center p-10 relative overflow-hidden"
         style={{
@@ -45,128 +35,84 @@ export default function LoginPage() {
             linear-gradient(
               to left,
               ${
-                resolvedTheme?.includes('dark')
+                isDark
                   ? 'rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.7) 40%, rgba(0,0,0,0.2) 70%, transparent 100%'
                   : 'rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.7) 40%, rgba(255,255,255,0.2) 70%, transparent 100%'
               }
             ),
             url(${imageback})
           `,
-          backgroundSize: 'cover',
-          backgroundPosition: 'left center',
-          backgroundRepeat: 'no-repeat',
+          backgroundSize: "cover",
+          backgroundPosition: "left center",
+          backgroundRepeat: "no-repeat",
         }}
-      >
-        <div className="flex flex-col items-center gap-4 text-center">
-          <div className="h-16 w-16 rounded-2xl bg-white/10 flex items-center justify-center">
-            <span className="text-2xl font-bold text-white">S</span>
-          </div>
+      />
 
-          <span className="text-4xl font-bold tracking-tight text-white">
-            {messages.nav.sim}
-          </span>
-
-          <p className="text-sm text-gray-400 tracking-wide uppercase">
-            {messages.auth.appTagline}
-          </p>
-        </div>
-      </div>
-
-      {/* Right panel — login form */}
+      {/* Right panel */}
       <div className="flex w-full lg:w-1/2 items-center justify-center p-8">
         <div className="mx-auto w-full max-w-sm space-y-6">
 
-          <div className="space-y-2 text-center">
-            <div className="flex items-center justify-center">
-              <img
-                src={imageLogin}
-                alt="Logo SIM"
-                className={`flex w-40 h-auto object-contain ${imageClass}`}
-              />
-            </div>
-
-            {/* Mobile-only brand mark */}
-            <div className="lg:hidden flex justify-center mb-4">
-              <div className="h-12 w-12 rounded-xl bg-primary flex items-center justify-center">
-                <span className="text-lg font-bold text-primary-foreground">
-                  S
-                </span>
-              </div>
-            </div>
-
-            <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-              {messages.auth.loginTitle}
-            </h1>
-
-            <p className="text-sm text-muted-foreground">
-              {messages.auth.loginDescription}
-            </p>
+          {/* LOGO DINÂMICO */}
+          <div className="flex justify-center items-center">
+            <img
+              src={imageLogin}
+              alt="Logo SIM"
+              className={`${imageClass} h-auto object-contain`}
+            />
           </div>
 
-          <Card>
-            <CardContent className="pt-6">
-              <Form {...form}>
-                <form onSubmit={onSubmit} className="space-y-4">
+          <h1 className="text-2xl font-semibold text-center">
+            Bem-vindo ao SIM
+          </h1>
 
-                  <FormField
-                    control={form.control}
-                    name="email"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <FloatingLabelInput
-                            type="email"
-                            label={messages.fields.email}
-                            {...field}
-                          />
-                        </FormControl>
+          <p className="text-sm text-center text-muted-foreground">
+            Entre com suas credenciais para acessar o sistema.
+          </p>
 
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+          <Form {...form}>
+            <form onSubmit={onSubmit} className="space-y-4">
 
-                  <FormField
-                    control={form.control}
-                    name="password"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <FloatingLabelInput
-                            type="password"
-                            label={messages.fields.senha}
-                            {...field}
-                          />
-                        </FormControl>
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input type="email" placeholder="voce@exemplo.com" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Senha</FormLabel>
+                    <FormControl>
+                      <Input type="password" placeholder="••••••••" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-                  {serverError && (
-                    <p className="text-sm text-destructive">
-                      {serverError}
-                    </p>
-                  )}
+              {serverError && (
+                <p className="text-sm text-destructive">{serverError}</p>
+              )}
 
-                  <Button
-                    type="submit"
-                    className="w-full"
-                    disabled={isSubmitting}
-                  >
-                    {isSubmitting
-                      ? messages.auth.loginSubmitting
-                      : messages.auth.loginSubmit}
-                  </Button>
+              <Button type="submit" className="w-full" disabled={isSubmitting}>
+                {isSubmitting ? 'Entrando...' : 'Entrar'}
+              </Button>
 
-                </form>
-              </Form>
-            </CardContent>
-          </Card>
+            </form>
+          </Form>
 
           <p className="text-center text-xs text-muted-foreground">
-            {messages.auth.loginSupport}
+            Problemas para acessar? Entre em contato com o suporte SIM.
           </p>
 
         </div>
