@@ -3,6 +3,8 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
 import { useLoginForm } from './useLoginForm'
+import imageback from "../../assets/image_background.png";
+import imageLogin from "../../assets/image_Login.png";
 
 export default function LoginPage() {
   const { form, onSubmit, serverError, isSubmitting } = useLoginForm()
@@ -14,22 +16,37 @@ export default function LoginPage() {
       <div className="absolute top-4 right-4 z-10">
         <ThemeToggle />
       </div>
-
       {/* Left panel — branding, hidden on small screens */}
-      <div className="hidden lg:flex lg:w-1/2 flex-col items-center justify-center bg-gray-950 p-10">
-        <div className="flex flex-col items-center gap-3 text-center">
-          <span className="text-5xl font-bold tracking-tight text-white">SIM</span>
-          <p className="text-sm text-gray-400 tracking-wide uppercase">
-            Sistema Integrado de Medicamentos
-          </p>
-        </div>
+      <div
+        className="hidden lg:flex lg:w-1/2 flex-col items-center justify-center p-10 relative overflow-hidden"
+        style={{
+          backgroundImage: `
+      linear-gradient(
+        to left,
+        white 0%,
+        rgba(255, 255, 255, 0.34) 12%,
+        transparent 30%
+      ),
+      url(${imageback})
+    `,
+          backgroundSize: "cover",
+          backgroundPosition: "left center",
+          backgroundRepeat: "no-repeat",
+        }}
+      >
       </div>
-
       {/* Right panel — login form */}
       <div className="flex w-full lg:w-1/2 items-center justify-center p-8">
         <div className="mx-auto w-full max-w-sm space-y-6">
-
           <div className="space-y-2 text-center">
+            <div className="flex justify-center items-center">
+              <img
+                src={imageLogin}
+                alt="Logo SIM"
+                className="w-40 h-auto object-contain"
+              />
+            </div>
+
             <h1 className="text-2xl font-semibold tracking-tight text-foreground">
               Bem-vindo ao SIM
             </h1>
