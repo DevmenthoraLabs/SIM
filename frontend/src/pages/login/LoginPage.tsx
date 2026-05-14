@@ -8,6 +8,7 @@ import imagebackDark from "@/assets/image_background_dark.png"
 import imageLoginLight from "@/assets/image_login.png"
 import imageLoginDark from "@/assets/image_logindark.png"
 import { useTheme } from '@/hooks/useTheme'
+import { messages } from '@/lib/messages'
 
 export default function LoginPage() {
   const { form, onSubmit, serverError, isSubmitting } = useLoginForm()
@@ -52,21 +53,21 @@ export default function LoginPage() {
       <div className="flex w-full lg:w-1/2 items-center justify-center p-8">
         <div className="mx-auto w-full max-w-sm space-y-6">
 
-          {/* LOGO DINÂMICO */}
+          {/* LOGO */}
           <div className="flex justify-center items-center">
             <img
               src={imageLogin}
-              alt="Logo SIM"
+              alt={messages.nav.sim}
               className={`${imageClass} h-auto object-contain`}
             />
           </div>
 
           <h1 className="text-2xl font-semibold text-center">
-            Bem-vindo ao SIM
+            {messages.auth.loginTitle}
           </h1>
 
           <p className="text-sm text-center text-muted-foreground">
-            Entre com suas credenciais para acessar o sistema.
+            {messages.auth.loginDescription}
           </p>
 
           <Form {...form}>
@@ -77,10 +78,18 @@ export default function LoginPage() {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email</FormLabel>
+                    <FormLabel>
+                      {messages.fields.email}
+                    </FormLabel>
+
                     <FormControl>
-                      <Input type="email" placeholder="voce@exemplo.com" {...field} />
+                      <Input
+                        type="email"
+                        placeholder={messages.fields.placeholderEmail}
+                        {...field}
+                      />
                     </FormControl>
+
                     <FormMessage />
                   </FormItem>
                 )}
@@ -91,28 +100,44 @@ export default function LoginPage() {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Senha</FormLabel>
+                    <FormLabel>
+                      {messages.fields.senha}
+                    </FormLabel>
+
                     <FormControl>
-                      <Input type="password" placeholder="••••••••" {...field} />
+                      <Input
+                        type="password"
+                        placeholder={messages.auth.passwordPlaceholder}
+                        {...field}
+                      />
                     </FormControl>
+
                     <FormMessage />
                   </FormItem>
                 )}
               />
 
               {serverError && (
-                <p className="text-sm text-destructive">{serverError}</p>
+                <p className="text-sm text-destructive">
+                  {serverError}
+                </p>
               )}
 
-              <Button type="submit" className="w-full" disabled={isSubmitting}>
-                {isSubmitting ? 'Entrando...' : 'Entrar'}
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={isSubmitting}
+              >
+                {isSubmitting
+                  ? messages.auth.loginSubmitting
+                  : messages.auth.loginSubmit}
               </Button>
 
             </form>
           </Form>
 
           <p className="text-center text-xs text-muted-foreground">
-            Problemas para acessar? Entre em contato com o suporte SIM.
+            {messages.auth.loginSupport}
           </p>
 
         </div>
