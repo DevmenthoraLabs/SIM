@@ -1,42 +1,30 @@
-import { useEffect, useState } from 'react'
-import {
-  type Theme,
-  applyTheme,
-  getStoredTheme,
-  getSystemTheme,
-  setStoredTheme,
-} from '@/lib/theme'
+import { useEffect } from 'react'
+import { useThemeStore } from '@/store/themeStore'
 
 export function useTheme() {
-  const [theme, setThemeState] = useState<Theme>(getStoredTheme)
+  const { theme, setTheme } = useThemeStore()
 
-  // Apply theme class to <html> whenever it changes
+  const resolvedTheme =
+    theme === 'system'
+      ? window.matchMedia('(prefers-color-scheme: dark)').matches
+        ? 'dark'
+        : 'light'
+      : theme
+
   useEffect(() => {
-    applyTheme(theme)
-  }, [theme])
+    document.documentElement.classList.toggle(
+      'dark',
+      resolvedTheme === 'dark'
+    )
+  }, [resolvedTheme])
 
-  // Re-apply when the OS preference changes and theme is set to 'system'
-  useEffect(() => {
-    if (theme !== 'system') return
-    const media = window.matchMedia('(prefers-color-scheme: dark)')
-    const handler = () => applyTheme('system')
-    media.addEventListener('change', handler)
-    return () => media.removeEventListener('change', handler)
-  }, [theme])
-
-  function setTheme(next: Theme): void {
-    setStoredTheme(next)
-    setThemeState(next)
-  }
-
-  function toggleTheme(): void {
-    const resolved = theme === 'system' ? getSystemTheme() : theme
-    setTheme(resolved === 'dark' ? 'light' : 'dark')
+  function toggleTheme() {
+    setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')
   }
 
   return {
     theme,
-    resolvedTheme: theme === 'system' ? getSystemTheme() : theme,
+    resolvedTheme,
     setTheme,
     toggleTheme,
   }
