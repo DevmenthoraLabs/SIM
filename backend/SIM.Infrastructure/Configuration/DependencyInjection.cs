@@ -53,8 +53,7 @@ public static class DependencyInjection
             client.DefaultRequestHeaders.Add("apikey", anonKey);
         });
 
-        var serviceRoleKey = configuration["Supabase:ServiceRoleKey"]
-            ?? throw new InvalidOperationException("Supabase:ServiceRoleKey is not configured.");
+        var serviceRoleKey = configuration["Supabase:ServiceRoleKey"] ?? string.Empty;
 
         services.AddHttpClient("SupabaseAdmin", client =>
         {
